@@ -1,0 +1,68 @@
+### 机型编码管理系统 API 测试
+
+### 1. 健康检查 (无需认证)
+GET http://localhost:5000/api/health/public
+
+### 2. 用户登录
+POST http://localhost:5000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "employeeId": "admin",
+  "password": "admin123"
+}
+
+### 3. 获取用户信息 (需要JWT Token)
+GET http://localhost:5000/api/v1/user/profile
+Authorization: Bearer {{accessToken}}
+
+### 4. 获取组织架构 (需要管理员权限)
+GET http://localhost:5000/api/v1/organization/tree
+Authorization: Bearer {{accessToken}}
+
+### 5. 获取权限列表 (需要管理员权限)
+GET http://localhost:5000/api/v1/permission/tree
+Authorization: Bearer {{accessToken}}
+
+### 6. 获取角色列表 (需要管理员权限)
+GET http://localhost:5000/api/v1/role
+Authorization: Bearer {{accessToken}}
+
+### 7. 获取产品类型
+GET http://localhost:5000/api/v1/product-types
+Authorization: Bearer {{accessToken}}
+
+### 7.1. 创建产品类型 (需要管理员权限)
+POST http://localhost:5000/api/v1/product-types
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "code": "TEST",
+  "name": "测试产品类型",
+  "isActive": true
+}
+
+### 8. 获取机型分类
+GET http://localhost:5000/api/v1/model-classifications
+Authorization: Bearer {{accessToken}}
+
+### 9. 获取代码分类
+GET http://localhost:5000/api/v1/code-classifications
+Authorization: Bearer {{accessToken}}
+
+### 10. 获取编码使用记录
+GET http://localhost:5000/api/v1/code-usage
+Authorization: Bearer {{accessToken}}
+
+### 11. 获取数据字典
+GET http://localhost:5000/api/v1/data-dictionary
+Authorization: Bearer {{accessToken}}
+
+### 12. 刷新Token
+POST http://localhost:5000/api/v1/auth/refresh-token
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refreshToken}}"
+}

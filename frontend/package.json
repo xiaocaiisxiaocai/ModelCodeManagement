@@ -1,0 +1,46 @@
+{
+  "name": "my-vite-app",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:network": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "build:production": "vite build --mode production",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "preview:network": "vite preview --host 0.0.0.0 --port 4173",
+    "serve": "vite preview --host 0.0.0.0 --port 4173"
+  },
+  "dependencies": {
+    "@carbon/icons-react": "^11.62.0",
+    "@carbon/react": "^1.85.1",
+    "@unocss/reset": "^66.3.3",
+    "echarts": "^5.6.0",
+    "echarts-for-react": "^3.0.2",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^6.30.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.30.1",
+    "@iconify-json/carbon": "^1.2.10",
+    "@types/node": "^24.2.0",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@unocss/preset-attributify": "^66.3.3",
+    "@unocss/preset-icons": "^66.3.3",
+    "@unocss/preset-uno": "^66.3.3",
+    "@vitejs/plugin-react": "^4.6.0",
+    "eslint": "^9.30.1",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "globals": "^16.3.0",
+    "terser": "^5.43.1",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.35.1",
+    "unocss": "^66.3.3",
+    "vite": "^7.0.3"
+  }
+}

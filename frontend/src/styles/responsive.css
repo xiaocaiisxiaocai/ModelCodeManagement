@@ -1,0 +1,225 @@
+/* 响应式增强样式 */
+
+/* 滚动条优化 */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(59 130 246 / 0.5) transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgb(59 130 246 / 0.5);
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgb(59 130 246 / 0.7);
+}
+
+/* 隐藏滚动条但保持滚动功能 */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* 移动端触摸优化 */
+@media (max-width: 1024px) {
+  .touch-optimized {
+    min-height: 44px; /* iOS推荐的最小触摸目标 */
+    min-width: 44px;
+  }
+  
+  /* 移动端表格优化 */
+  .mobile-table-wrapper {
+    border-radius: 0.75rem;
+    overflow: hidden;
+  }
+  
+  .mobile-table-wrapper table {
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+  
+  /* 移动端卡片优化 */
+  .mobile-card {
+    margin: 0 -0.5rem;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+  
+  @media (min-width: 640px) {
+    .mobile-card {
+      margin: 0;
+      border-radius: 0.75rem;
+      border: 1px solid rgb(229 231 235);
+    }
+  }
+}
+
+/* 平板和小屏笔记本优化 */
+@media (min-width: 768px) and (max-width: 1279px) {
+  .tablet-optimized {
+    font-size: 0.875rem;
+  }
+  
+  .tablet-spacing {
+    padding: 0.75rem;
+  }
+}
+
+/* 大屏优化 */
+@media (min-width: 1280px) {
+  .desktop-optimized {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+}
+
+/* 动画和过渡优化 */
+.smooth-transition {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 焦点可见性优化 */
+.focus-visible:focus {
+  outline: 2px solid rgb(59 130 246);
+  outline-offset: 2px;
+}
+
+/* 表格响应式优化 */
+.responsive-table {
+  @media (max-width: 1024px) {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
+
+/* 搜索框响应式 */
+.responsive-search {
+  min-width: 200px;
+  max-width: 100%;
+}
+
+@media (min-width: 640px) {
+  .responsive-search {
+    min-width: 250px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-search {
+    min-width: 320px;
+  }
+}
+
+/* 按钮组响应式 */
+.button-group {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .button-group {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .button-group > * {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* 网格响应式增强 */
+.responsive-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .responsive-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .responsive-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* 文本截断优化 */
+.smart-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (min-width: 1024px) {
+  .smart-truncate {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+  }
+}
+
+/* 侧边栏动画优化 */
+.sidebar-transition {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 减少动画（用户偏好） */
+@media (prefers-reduced-motion: reduce) {
+  .smooth-transition,
+  .sidebar-transition {
+    transition: none;
+  }
+  
+  .animate-pulse {
+    animation: none;
+  }
+}
+
+/* 高对比度支持 */
+@media (prefers-contrast: high) {
+  .bg-blue-600 {
+    background-color: #1e40af;
+  }
+  
+  .text-gray-500 {
+    color: #374151;
+  }
+  
+  .border-gray-200 {
+    border-color: #6b7280;
+  }
+}
+
+/* 深色模式准备（如果需要） */
+@media (prefers-color-scheme: dark) {
+  /* 这里可以添加深色模式样式，目前保持原有配色 */
+}

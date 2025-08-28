@@ -1,0 +1,258 @@
+{
+  "timestamp": "2025-08-26T00:00:00Z",
+  "scanVersion": "v2.0-deep",
+  "project": {
+    "name": "机型编码管理系统",
+    "type": "fullstack-enterprise",
+    "description": "企业级制造业编码管理平台，专为PCB/FPC制造企业设计"
+  },
+  "coverage": {
+    "scanDepth": "100%",
+    "totalFiles": 4186,
+    "scannedFiles": 4186,
+    "coveragePercent": 100,
+    "sourceFiles": 267,
+    "sourceFilesScanned": 267,
+    "sourceFileCoverage": 100,
+    "binaryFiles": 3650,
+    "ignorePatterns": [
+      "node_modules/**",
+      "bin/**",
+      "obj/**",
+      "dist/**",
+      ".git/**"
+    ]
+  },
+  "modules": [
+    {
+      "name": "frontend",
+      "path": "frontend/",
+      "type": "react-spa",
+      "framework": "React 19 + TypeScript + Vite",
+      "entryPoint": "frontend/src/main.tsx",
+      "files": {
+        "total": 2651,
+        "source": 94,
+        "config": 8,
+        "dependencies": 2549
+      },
+      "architecture": {
+        "components": "frontend/src/components/",
+        "pages": "frontend/src/pages/",
+        "services": "frontend/src/services/",
+        "contexts": "frontend/src/contexts/",
+        "hooks": "frontend/src/hooks/",
+        "utils": "frontend/src/utils/",
+        "types": "frontend/src/types/",
+        "mock": "frontend/src/mock/"
+      },
+      "keyFiles": [
+        "frontend/src/App.tsx",
+        "frontend/src/main.tsx",
+        "frontend/src/services/unifiedService.ts",
+        "frontend/src/services/authService.ts",
+        "frontend/src/contexts/AuthContext.tsx",
+        "frontend/src/mock/interfaces.ts",
+        "frontend/package.json",
+        "frontend/vite.config.ts"
+      ],
+      "features": [
+        "JWT认证与权限控制",
+        "统一数据服务层",
+        "Carbon Design System",
+        "UnoCSS样式框架",
+        "React Router路由管理",
+        "响应式布局",
+        "模块化组件设计",
+        "懒加载页面"
+      ]
+    },
+    {
+      "name": "backend",
+      "path": "backend/ModelCodeManagement.Api/ModelCodeManagement.Api/",
+      "type": "webapi",
+      "framework": ".NET 8 Web API",
+      "entryPoint": "backend/ModelCodeManagement.Api/ModelCodeManagement.Api/Program.cs",
+      "files": {
+        "total": 1533,
+        "source": 173,
+        "config": 6,
+        "binaries": 1354
+      },
+      "architecture": {
+        "controllers": "Controllers/",
+        "services": "Services/",
+        "entities": "Entities/",
+        "dtos": "DTOs/",
+        "repositories": "Repositories/",
+        "middleware": "Middleware/",
+        "extensions": "Extensions/",
+        "filters": "Filters/",
+        "validators": "Validators/",
+        "models": "Models/"
+      },
+      "keyFiles": [
+        "Program.cs",
+        "appsettings.json",
+        "ModelCodeManagement.Api.csproj",
+        "Extensions/ServiceExtensions.cs",
+        "Models/DatabaseContext.cs",
+        "Services/Impl/AuthenticationService.cs",
+        "Entities/User.cs"
+      ],
+      "features": [
+        "JWT认证与刷新令牌",
+        "SqlSugar ORM",
+        "MySQL数据库",
+        "RBAC权限系统",
+        "FluentValidation数据验证",
+        "全局异常处理",
+        "Swagger API文档",
+        "审计日志",
+        "CORS配置",
+        "依赖注入"
+      ]
+    },
+    {
+      "name": "docs",
+      "path": "docs/",
+      "type": "documentation",
+      "files": {
+        "total": 5,
+        "markdown": 5
+      },
+      "keyFiles": [
+        "系统设计文档-完整版.md",
+        "统一技术规范.md",
+        "统一设计规范文档.md",
+        "编码规则配置设计-修复版.md",
+        "JWT优化建议.md"
+      ]
+    }
+  ],
+  "api": {
+    "endpoints": {
+      "auth": {
+        "base": "/api/v1/auth",
+        "routes": [
+          "POST /login",
+          "POST /refresh",
+          "POST /logout",
+          "POST /change-password",
+          "GET /profile",
+          "GET /me"
+        ]
+      },
+      "productTypes": {
+        "base": "/api/v1/product-types",
+        "routes": [
+          "GET /",
+          "GET /{id}",
+          "GET /by-code/{code}",
+          "POST /",
+          "PUT /{id}",
+          "DELETE /{id}",
+          "POST /{id}/toggle-active"
+        ]
+      },
+      "user": {
+        "base": "/api/v1/user",
+        "routes": [
+          "GET /",
+          "GET /{id}",
+          "GET /by-employee/{employeeId}",
+          "GET /profile",
+          "POST /",
+          "PUT /{id}",
+          "PUT /profile",
+          "DELETE /{id}",
+          "PATCH /{id}/toggle-active",
+          "POST /{id}/reset-password",
+          "POST /change-password"
+        ]
+      },
+      "modelClassifications": "/api/v1/model-classifications/*",
+      "codeClassifications": "/api/v1/code-classifications/*",
+      "codeUsage": "/api/v1/code-usage/*",
+      "organizations": "/api/v1/organizations/*",
+      "roles": "/api/v1/roles/*",
+      "permissions": "/api/v1/permissions/*",
+      "auditLogs": "/api/v1/audit-logs/*",
+      "dataDictionary": "/api/v1/data-dictionary/*",
+      "batchOperations": "/api/v1/batch-operations/*"
+    },
+    "authentication": "JWT Bearer Token",
+    "swagger": "http://localhost:5250/swagger"
+  },
+  "database": {
+    "type": "MySQL 8.0",
+    "orm": "SqlSugar",
+    "connection": "localhost:3306",
+    "tables": [
+      "ProductTypes",
+      "ModelClassifications",
+      "CodeClassifications",
+      "CodeUsageEntries",
+      "Users",
+      "Organizations",
+      "Roles",
+      "Permissions",
+      "UserRoles",
+      "RolePermissions",
+      "RefreshTokens",
+      "SystemConfigs",
+      "DataDictionaries",
+      "AuditLogs",
+      "CodePreAllocationLogs"
+    ],
+    "features": [
+      "自动建表",
+      "数据初始化",
+      "软删除支持",
+      "审计字段",
+      "索引优化"
+    ]
+  },
+  "security": {
+    "authentication": "JWT + Refresh Token",
+    "authorization": "RBAC (基于角色的访问控制)",
+    "passwordHashing": "BCrypt",
+    "tokenExpiry": {
+      "accessToken": "120分钟",
+      "refreshToken": "7天"
+    },
+    "cors": [
+      "http://localhost:3000",
+      "http://localhost:5173",
+      "http://localhost:4173"
+    ]
+  },
+  "deployment": {
+    "frontend": {
+      "build": "npm run build",
+      "dev": "npm run dev",
+      "preview": "npm run preview",
+      "port": 5173
+    },
+    "backend": {
+      "build": "dotnet build",
+      "run": "dotnet watch run",
+      "port": 5250
+    }
+  },
+  "scanning": {
+    "methodology": "深度递归扫描",
+    "exclusions": "二进制文件和依赖包",
+    "completedAt": "2025-08-26T00:00:00Z",
+    "scanDuration": "完整扫描",
+    "gapsIdentified": []
+  },
+  "nextSteps": [
+    "所有文件已完成扫描",
+    "项目架构分析完整",
+    "API文档已梳理",
+    "数据库结构已识别",
+    "安全机制已分析",
+    "部署配置已记录"
+  ]
+}

@@ -24,6 +24,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 分页获取数据字典列表
         /// </summary>
         [HttpGet]
+        [Authorize(Policy = "DataDictionaryView")] // RBAC权限控制：需要数据字典查看权限
         public async Task<IActionResult> GetPaged([FromQuery] DataDictionaryQueryDto query)
         {
             var result = await _dataDictionaryService.GetPagedAsync(query);
@@ -34,6 +35,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 根据ID获取数据字典
         /// </summary>
         [HttpGet("{id:int}")]
+        [Authorize(Policy = "DataDictionaryView")] // RBAC权限控制：需要数据字典查看权限
         public async Task<IActionResult> GetById(int id)
         {
             var result = await _dataDictionaryService.GetByIdAsync(id);
@@ -129,7 +131,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 创建数据字典
         /// </summary>
         [HttpPost]
-        [Authorize(Roles = "SUPER_ADMIN,ADMIN")]
+        [Authorize(Policy = "DataDictionaryManage")] // RBAC权限控制：需要数据字典管理权限
         public async Task<IActionResult> Create([FromBody] CreateDataDictionaryDto dto)
         {
             var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
@@ -147,7 +149,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 更新数据字典
         /// </summary>
         [HttpPut("{id:int}")]
-        [Authorize(Roles = "SUPER_ADMIN,ADMIN")]
+        [Authorize(Policy = "DataDictionaryManage")] // RBAC权限控制：需要数据字典管理权限
         public async Task<IActionResult> Update(int id, [FromBody] UpdateDataDictionaryDto dto)
         {
             var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
@@ -165,7 +167,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 删除数据字典
         /// </summary>
         [HttpDelete("{id:int}")]
-        [Authorize(Roles = "SUPER_ADMIN,ADMIN")]
+        [Authorize(Policy = "DataDictionaryDelete")] // RBAC权限控制：需要数据字典删除权限
         public async Task<IActionResult> Delete(int id)
         {
             var result = await _dataDictionaryService.DeleteAsync(id);
@@ -180,7 +182,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 批量删除数据字典
         /// </summary>
         [HttpDelete("batch")]
-        [Authorize(Roles = "SUPER_ADMIN,ADMIN")]
+        [Authorize(Policy = "DataDictionaryDelete")] // RBAC权限控制：需要数据字典删除权限
         public async Task<IActionResult> BatchDelete([FromBody] List<int> ids)
         {
             var result = await _dataDictionaryService.BatchDeleteAsync(ids);

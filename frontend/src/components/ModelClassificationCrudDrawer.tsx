@@ -99,15 +99,22 @@ const ModelClassificationCrudDrawer: React.FC<ModelClassificationCrudDrawerProps
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
     
+    // 验证机型类型：只允许大写字母
     if (!formData.type || formData.type.trim() === '') {
       newErrors.type = '机型类型不能为空';
-    } else if (!formData.type.endsWith('-')) {
-      newErrors.type = '机型类型必须以"-"结尾';
+    } else if (formData.type.length < 2 || formData.type.length > 20) {
+      newErrors.type = '机型类型长度必须在2-20个字符之间';
+    } else if (!/^[A-Z]+$/.test(formData.type)) {
+      newErrors.type = '机型类型只能包含大写字母，如：SLU、SLUR等';
     }
     
-    if (!formData.description || formData.description.length === 0 || 
-        formData.description.some(desc => desc.trim() === '')) {
-      newErrors.description = '描述不能为空';
+    // 验证描述：允许为空，但如果有内容，每项不能超过500字符，也不能有空字符串
+    if (formData.description && formData.description.length > 0) {
+      if (formData.description.some(desc => desc.trim() === '')) {
+        newErrors.description = '描述项不能为空字符串';
+      } else if (formData.description.some(desc => desc.length > 500)) {
+        newErrors.description = '每个描述项长度不能超过500个字符';
+      }
     }
     
     setErrors(newErrors);
@@ -125,7 +132,12 @@ const ModelClassificationCrudDrawer: React.FC<ModelClassificationCrudDrawerProps
     // 根据模式执行不同操作
     if (mode === 'create' || mode === 'update') {
       if (onSave) {
-        onSave(formData as ModelClassification);
+        // 修复：在提交前过滤掉空的描述行
+        const cleanedFormData = {
+          ...formData,
+          description: formData.description?.filter(desc => desc.trim() !== '') || []
+        };
+        onSave(cleanedFormData as ModelClassification);
       }
     }
     
@@ -194,12 +206,12 @@ const ModelClassificationCrudDrawer: React.FC<ModelClassificationCrudDrawerProps
                 name="type"
                 value={formData.type}
                 onChange={handleChange}
-                disabled={isReadOnly || (mode === 'update') || isLoading}
-                placeholder="例如: SLU-, SLUR-"
-                className={`w-full px-3 py-2 border ${errors.type ? 'border-red-500' : 'border-gray-300'} rounded-md ${(isReadOnly || (mode === 'update') || isLoading) ? 'bg-gray-100' : 'focus:outline-none focus:ring-2 focus:ring-blue-500'}`}
+                disabled={isReadOnly || isLoading}
+                placeholder="例如: SLU, SLUR"
+                className={`w-full px-3 py-2 border ${errors.type ? 'border-red-500' : 'border-gray-300'} rounded-md ${(isReadOnly || isLoading) ? 'bg-gray-100' : 'focus:outline-none focus:ring-2 focus:ring-blue-500'}`}
               />
               {errors.type && <p className="text-red-500 text-xs mt-1">{errors.type}</p>}
-              {!errors.type && <p className="text-gray-500 text-xs mt-1">机型类型必须以"-"结尾</p>}
+              {!errors.type && <p className="text-gray-500 text-xs mt-1">机型类型只能包含大写字母</p>}
             </div>
 
 

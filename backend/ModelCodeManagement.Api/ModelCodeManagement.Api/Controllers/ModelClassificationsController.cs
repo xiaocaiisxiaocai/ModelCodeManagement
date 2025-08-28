@@ -25,6 +25,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 获取所有机型分类
         /// </summary>
         [HttpGet]
+        [Authorize(Policy = "ModelClassificationView")] // RBAC权限控制：需要机型分类查看权限
         public async Task<IActionResult> GetAll()
         {
             var result = await _modelClassificationService.GetAllAsync();
@@ -39,6 +40,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 根据产品类型获取机型分类
         /// </summary>
         [HttpGet("by-product/{productType}")]
+        [Authorize(Policy = "ModelClassificationView")] // RBAC权限控制：需要机型分类查看权限
         public async Task<IActionResult> GetByProductType(string productType)
         {
             var result = await _modelClassificationService.GetByProductTypeAsync(productType);
@@ -53,6 +55,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 根据产品类型ID获取机型分类
         /// </summary>
         [HttpGet("by-product-id/{productTypeId}")]
+        [Authorize(Policy = "ModelClassificationView")] // RBAC权限控制：需要机型分类查看权限
         public async Task<IActionResult> GetByProductTypeId(int productTypeId)
         {
             var result = await _modelClassificationService.GetByProductTypeIdAsync(productTypeId);
@@ -67,6 +70,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 根据ID获取机型分类
         /// </summary>
         [HttpGet("{id}")]
+        [Authorize(Policy = "ModelClassificationView")] // RBAC权限控制：需要机型分类查看权限
         public async Task<IActionResult> GetById(int id)
         {
             var result = await _modelClassificationService.GetByIdAsync(id);
@@ -81,6 +85,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 根据类型获取机型分类
         /// </summary>
         [HttpGet("by-type/{type}")]
+        [Authorize(Policy = "ModelClassificationView")] // RBAC权限控制：需要机型分类查看权限
         public async Task<IActionResult> GetByType(string type)
         {
             var result = await _modelClassificationService.GetByTypeAsync(type);
@@ -95,11 +100,25 @@ namespace ModelCodeManagement.Api.Controllers
         /// 创建机型分类
         /// </summary>
         [HttpPost]
-        [Authorize(Policy = "Admin")]
+        [Authorize(Policy = "ModelClassificationManage")] // RBAC权限控制：需要机型分类管理权限
         [AuditLog("CreateModelClassification", "ModelClassification")]
         public async Task<IActionResult> Create([FromBody] CreateModelClassificationDto dto)
         {
+            Console.WriteLine("🚀 [ModelClassificationsController] Create方法被调用");
+            Console.WriteLine($"📝 接收到的DTO数据: Type={dto?.Type}, Description={dto?.Description?.Count}项, ProductTypeId={dto?.ProductTypeId}, HasCodeClassification={dto?.HasCodeClassification}");
+            
+            if (dto?.Description != null)
+            {
+                Console.WriteLine($"📋 描述内容: [{string.Join(", ", dto.Description.Select(d => $"\"{d}\""))}]");
+            }
+            
             var result = await _modelClassificationService.CreateAsync(dto);
+            
+            Console.WriteLine($"✅ 服务返回结果: Success={result.Success}, Message={result.Message}");
+            if (!result.Success)
+            {
+                Console.WriteLine($"❌ 错误详情: {result.Error}");
+            }
             
             if (result.Success)
                 return CreatedAtAction(nameof(GetById), new { id = result.Data!.Id }, result);
@@ -111,7 +130,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 更新机型分类
         /// </summary>
         [HttpPut("{id}")]
-        [Authorize(Policy = "Admin")]
+        [Authorize(Policy = "ModelClassificationManage")] // RBAC权限控制：需要机型分类管理权限
         [AuditLog("UpdateModelClassification", "ModelClassification")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateModelClassificationDto dto)
         {
@@ -127,7 +146,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 删除机型分类
         /// </summary>
         [HttpDelete("{id}")]
-        [Authorize(Policy = "SuperAdmin")]
+        [Authorize(Policy = "ModelClassificationDelete")] // RBAC权限控制：需要机型分类删除权限
         [AuditLog("DeleteModelClassification", "ModelClassification")]
         public async Task<IActionResult> Delete(int id)
         {

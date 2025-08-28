@@ -94,8 +94,16 @@ const ModelClassificationPage: React.FC = () => {
       );
       success = result !== null;
     } else if (drawerMode === 'update' && selectedModel) {
+      // 获取正确的ID用于更新 - 优先使用隐藏的后端ID
+      const backendId = (selectedModel as any)._backendId;
+      const modelId = backendId?.toString() || selectedModel.id || '';
+      if (!modelId) {
+        showError('更新机型分类失败: 缺少有效ID');
+        return;
+      }
+      
       const result = await handleResponse(
-        () => unifiedServices.modelClassification.updateModelClassification(selectedModel.type, model),
+        () => unifiedServices.modelClassification.updateModelClassification(modelId, model),
         (data) => {
           showSuccess(`成功更新机型分类: ${data.type}`);
           success = true;
@@ -117,11 +125,17 @@ const ModelClassificationPage: React.FC = () => {
   /**
    * 删除机型分类 - 新方式
    */
-  const handleDeleteModelConfirm = async (type: string) => {
+  const handleDeleteModelConfirm = async (idOrType: string) => {
+    // 如果selectedModel存在，优先使用其ID
+    let deleteId = idOrType;
+    if (selectedModel) {
+      deleteId = selectedModel.Id?.toString() || selectedModel.id || idOrType;
+    }
+    
     const result = await handleResponse(
-      () => unifiedServices.modelClassification.deleteModelClassification(type),
+      () => unifiedServices.modelClassification.deleteModelClassification(deleteId),
       () => {
-        showSuccess(`成功删除机型分类: ${type}`);
+        showSuccess(`成功删除机型分类: ${selectedModel?.type || selectedModel?.Type || idOrType}`);
       },
       (errorMsg) => {
         showError(`删除机型分类失败: ${errorMsg}`);

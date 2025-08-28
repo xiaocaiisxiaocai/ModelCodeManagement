@@ -1,10 +1,17 @@
-# 机型编码管理系统
+# CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+# 机型编码管理系统
+
+> **企业级制造业编码管理平台** - 专为PCB/FPC制造企业设计的智能编码管理系统，支持灵活的2层/3层编码结构和完整的RBAC权限控制
+
 ## 变更记录 (Changelog)
 
-### v2.0.0 - 2025年08月26日 深度扫描版
+### v2.1.0 - 2025年08月28日 全面架构升级版  
+- 🔧 **RBAC权限修复**: 解决产品类型页面500错误，完善权限策略配置
+- 🛡️ **权限策略增强**: 新增ProductTypeView策略，支持更细粒度的权限控制
+- ✅ **程序集重构**: 修复热重载导致的BadImageFormatException问题
 - 🚀 **深度扫描完成**: 100%文件覆盖 (4186/4186文件)
 - 📊 **完整架构分析**: 前后端所有模块和组件深度扫描
 - 🔍 **API端点梳理**: 完整的REST API接口文档
@@ -12,15 +19,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - 🛡️ **安全机制**: JWT+RBAC完整权限体系
 - 📱 **前端架构**: 94个源文件，统一服务层设计
 - ⚙️ **后端架构**: 173个源文件，分层架构完整实现
+- ⚡ **ORM升级**: 从SqlSugar迁移至Entity Framework Core 9.0
 - 📋 **元数据更新**: .claude/index.json包含完整项目信息
-
-### v1.1.0 - 2025年08月26日 10:20:31
-- 🏗️ **架构初始化完成**: 完整的项目架构分析和文档化
-- 📊 **模块结构图**: 新增Mermaid架构图展示项目模块关系
-- 📚 **模块索引增强**: 完善模块信息，增加技术栈和状态详情
-- 🔍 **扫描覆盖率**: 142/850文件 (16.7%) - 核心架构全覆盖
-- 📋 **.claude/index.json**: 更新详细的项目元数据和扫描信息
-- ✅ **状态**: 前后端核心架构完成，可进行业务开发和功能扩展
 
 ## 项目愿景
 
@@ -30,7 +30,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### 技术栈
 - **前端**: React 19 + TypeScript + Carbon Design System + UnoCSS + Vite
-- **后端**: .NET 8 Web API + SqlSugar ORM + MySQL 8.0  
+- **后端**: .NET 8 Web API + Entity Framework Core 9.0 + MySQL 8.0  
 - **认证**: JWT + Refresh Token + RBAC权限管理
 - **部署**: Windows Server + IIS + 内网环境
 
@@ -83,7 +83,7 @@ graph TD
     AA --> CC["Services/"];
     AA --> DD["Entities/"];
     AA --> EE["DTOs/"];
-    AA --> FF["Repositories/"];
+    AA --> FF["Data/"];
     AA --> GG["Extensions/"];
     AA --> HH["Middleware/"];
     
@@ -101,20 +101,23 @@ graph TD
     DD --> RR["ModelClassification"];
     DD --> SS["CodeUsageEntry"];
     
-    GG --> TT["ServiceExtensions"];
-    GG --> UU["StartupValidationExtensions"];
+    FF --> TT["ApplicationDbContext"];
+    FF --> UU["BaseRepository"];
     
-    HH --> VV["GlobalExceptionMiddleware"];
-    HH --> WW["TokenValidationMiddleware"];
+    GG --> VV["ServiceExtensions"];
+    GG --> WW["StartupValidationExtensions"];
     
-    D --> XX["系统设计文档-完整版.md"];
-    D --> YY["统一技术规范.md"];
-    D --> ZZ["JWT优化建议.md"];
+    HH --> XX["GlobalExceptionMiddleware"];
+    HH --> YY["TokenValidationMiddleware"];
+    
+    D --> ZZ["系统设计文档-完整版.md"];
+    D --> AAA["统一技术规范.md"];
+    D --> BBB["JWT优化建议.md"];
 
     click K "./frontend/src/services/unifiedService.ts" "查看统一服务层"
     click L "./frontend/src/services/authService.ts" "查看认证服务"
     click AA "./backend/ModelCodeManagement.Api/ModelCodeManagement.Api/" "查看后端API项目"
-    click XX "./docs/系统设计文档-完整版.md" "查看系统设计文档"
+    click ZZ "./系统设计文档-完整版.md" "查看系统设计文档"
     click Y "./frontend/src/mock/interfaces.ts" "查看TypeScript类型定义"
 ```
 
@@ -123,7 +126,7 @@ graph TD
 | 模块 | 路径 | 类型 | 技术栈 | 文件数 | 状态 | 说明 |
 |------|------|------|--------|--------|------|------|
 | **frontend** | `./frontend/src/` | React SPA | React 19 + TS + Carbon | 94 | ✅ 完成 | 前端用户界面，统一服务层架构 |
-| **backend** | `./backend/ModelCodeManagement.Api/ModelCodeManagement.Api/` | .NET API | .NET 8 + SqlSugar + MySQL | 173 | ✅ 完成 | 后端API服务，分层架构设计 |
+| **backend** | `./backend/ModelCodeManagement.Api/ModelCodeManagement.Api/` | .NET API | .NET 8 + EF Core + MySQL | 173 | ✅ 完成 | 后端API服务，分层架构设计 |
 | **docs** | `./docs/` | 文档 | Markdown | 5 | ✅ 完成 | 系统设计文档和技术规范 |
 
 ### 详细模块信息
@@ -142,7 +145,7 @@ graph TD
 #### Backend 模块 (173个源文件)
 - **应用入口**: `./backend/ModelCodeManagement.Api/ModelCodeManagement.Api/Program.cs` (🔥 服务注册和配置)
 - **系统配置**: `./backend/ModelCodeManagement.Api/ModelCodeManagement.Api/appsettings.json` (🔥 数据库连接和系统配置)
-- **数据库上下文**: `./backend/ModelCodeManagement.Api/ModelCodeManagement.Api/Models/DatabaseContext.cs`
+- **数据库上下文**: `./backend/ModelCodeManagement.Api/ModelCodeManagement.Api/Data/ApplicationDbContext.cs`
 - **API测试**: `./backend/ModelCodeManagement.Api/ModelCodeManagement.Api/ModelCodeManagement.Api.http` (🔥 API测试文件)
 - **核心实体**: User, ProductType, ModelClassification, CodeUsageEntry (共15个数据表)
 - **认证服务**: AuthenticationService, JwtTokenService, RefreshTokenService
@@ -155,28 +158,57 @@ graph TD
 - **技术规范**: 统一技术规范.md + 统一设计规范文档.md
 - **专题文档**: 编码规则配置设计-修复版.md, JWT优化建议.md
 
-## 运行与开发
+## 快速开始
 
-### 前端开发 (frontend/)
+### 系统要求
+- **Node.js**: 18+ (前端开发)
+- **.NET**: 8.0 SDK (后端开发)  
+- **MySQL**: 8.0+ (数据库)
+- **IDE**: VS Code / Visual Studio 2022
+
+### 前端开发
 ```bash
-npm run dev                    # 本地开发 (http://localhost:5173)
-npm run dev:network           # 局域网访问 (http://0.0.0.0:5173)
-npm run lint                  # ESLint检查
-npm run build                 # 生产构建
-npm run preview               # 预览构建结果
+cd frontend                    # 进入前端目录
+npm install                   # 安装依赖
+npm run dev                   # 本地开发 (http://localhost:5173)
+npm run dev:network          # 局域网访问 (http://0.0.0.0:5173)
+npm run lint                 # ESLint检查
+npm run build                # 生产构建
+npm run preview              # 预览构建结果
 ```
 
-### 后端开发 (backend/ModelCodeManagement.Api/ModelCodeManagement.Api/)
+### 后端开发
 ```bash
-dotnet watch run              # 热重载开发 (http://localhost:5250)
-dotnet build                  # 编译检查
-dotnet clean                  # 清理输出
+cd backend/ModelCodeManagement.Api/ModelCodeManagement.Api/  # 进入后端目录
+dotnet restore               # 还原NuGet包
+dotnet watch run            # 热重载开发 (http://localhost:5250)
+dotnet build                # 编译检查
+dotnet clean                # 清理输出
+
+# 故障排除 (程序集冲突时)
+dotnet clean && dotnet build && dotnet run
 ```
 
 ### 重要调试端点
-- **Swagger文档**: http://localhost:5250/swagger (🔥 API文档和测试)
-- **健康检查**: http://localhost:5250/api/health (需认证) | /api/health/public (无需认证)
-- **默认管理员**: `admin/admin123`
+- **前端应用**: http://localhost:5173 (本地开发)
+- **Swagger API文档**: http://localhost:5250/swagger (🔥 完整API文档和测试界面)
+- **健康检查**: http://localhost:5250/api/health/public (无需认证，系统状态检查)
+- **认证健康检查**: http://localhost:5250/api/health (需JWT Token)
+- **默认管理员账户**: `admin/admin123` (首次登录后请修改密码)
+
+### 系统初始化验证
+```bash
+# 验证后端服务启动
+curl http://localhost:5250/api/health/public
+
+# 验证前端服务
+curl http://localhost:5173
+
+# 验证数据库连接 (通过API)
+curl -X POST http://localhost:5250/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"employeeId":"admin","password":"admin123"}'
+```
 
 ## API接口文档
 
@@ -225,11 +257,15 @@ dotnet clean                  # 清理输出
 | **CodePreAllocationLogs** | 代码预分配日志 | ModelType, Range | 批量分配记录 |
 
 ### 数据库特性
-- **ORM**: SqlSugar Code First
-- **自动建表**: Program.cs启动时自动创建
-- **初始数据**: 默认管理员、组织架构、权限配置
-- **软删除**: IsDeleted字段统一处理
-- **审计字段**: CreatedAt, UpdatedAt, CreatedBy, UpdatedBy
+- **ORM**: Entity Framework Core 9.0 (已从SqlSugar升级)
+- **提供商**: Pomelo.EntityFrameworkCore.MySql 9.0 (MySQL优化)
+- **自动建表**: Program.cs启动时EnsureCreated自动创建表结构
+- **开发环境**: 每次启动删除重建数据库 (EnsureDeleted + EnsureCreated)
+- **生产环境**: 建议使用Migration替代EnsureCreated
+- **初始数据**: SeedDataAsync方法自动初始化管理员、组织架构、权限配置
+- **软删除**: IsDeleted字段，查询时GlobalQueryFilters自动过滤
+- **审计字段**: CreatedAt, UpdatedAt, CreatedBy, UpdatedBy统一审计
+- **连接池**: EF Core内置连接池，支持高并发
 
 ## 核心架构
 
@@ -247,10 +283,12 @@ dotnet clean                  # 清理输出
 - **双重验证**: 前后端权限同时验证
 
 ### 数据库设计约定
+- **ORM**: Entity Framework Core 9.0 + Pomelo.EntityFrameworkCore.MySql
+- **建表方式**: Code First模式，程序启动时自动创建
 - **命名规范**: 表名复数形式 (Users, ProductTypes)，字段PascalCase (CreatedAt, IsActive)
-- **软删除机制**: IsDeleted字段统一处理
-- **ORM配置**: SqlSugar Code First，自动建表和初始数据
-- **关系映射**: 实体间Navigate导航属性
+- **软删除机制**: IsDeleted字段统一处理，查询时自动过滤
+- **审计字段**: CreatedAt, UpdatedAt, CreatedBy, UpdatedBy 统一审计
+- **关系映射**: Include/ThenInclude 加载关联数据，避免N+1查询
 
 ## 测试策略
 
@@ -265,7 +303,7 @@ dotnet clean                  # 清理输出
 
 ### 后端测试
 - **状态**: 待实现  
-- **建议**: xUnit + MockJesu + Integration Tests
+- **建议**: xUnit + Moq + Integration Tests
 
 ## 编码规范
 
@@ -298,28 +336,69 @@ dotnet clean                  # 清理输出
 ## 性能优化
 
 - **分页查询**: 大数据量查询统一分页处理
-- **数据库连接池**: SqlSugar连接池配置优化
+- **数据库连接池**: EF Core连接池配置优化
 - **前端代码分割**: Vite自动分割 (vendor/router/charts/carbon)
 - **缓存策略**: HTTP缓存 + 本地存储 + 数据库查询优化
 
-## AI 使用指引
+## AI使用指引
 
-### 开发工作流
-1. **新功能开发**: Entity → DTO → Service接口/实现 → Controller → 前端Service → 页面组件
-2. **权限控制**: 后端`[Authorize(Roles = "SuperAdmin,Admin")]` + 前端`<PermissionGate>`
-3. **数据验证**: FluentValidation后端验证 + 前端DataValidator
-4. **错误处理**: 统一DataResponse格式 + GlobalExceptionMiddleware
+### 开发工作流程
+1. **新功能开发完整流程**:
+   ```
+   Entity (数据实体) → DTO (传输对象) → Service (业务逻辑) → 
+   Controller (API控制器) → Frontend Service (前端服务) → 
+   Page Component (页面组件) → Route (路由配置)
+   ```
 
-### 常见任务模式
-- **添加新实体**: 参考ProductType完整流程
-- **新增API端点**: Controller → Service → Repository模式
-- **权限控制**: 三级权限配置 + RBAC验证
-- **前端页面**: 统一服务调用 + 错误边界处理
+2. **权限控制实现**:
+   - **后端**: `[Authorize(Policy = "SuperAdmin")]` 控制器权限
+   - **前端**: `<PermissionGate requiredPermission="ProductType.Delete">` 组件权限
+   - **路由**: `<ProtectedRoute requiredRoles={["admin"]}>` 路由保护
 
-### 调试和测试
-- **API调试**: Swagger UI + `.http`文件
-- **数据库**: DatabaseContext初始化 + SqlSugar日志
-- **前端**: React DevTools + 浏览器网络面板
+3. **数据验证策略**:
+   - **后端**: FluentValidation + ValidationFilter 自动验证
+   - **前端**: 表单验证 + unifiedService 统一错误处理
+
+### 新增业务功能示例 (以ProductType为参考)
+```bash
+# 后端 - 在 backend/ModelCodeManagement.Api/ModelCodeManagement.Api/
+1. Entities/ProductType.cs           # 数据实体定义
+2. DTOs/ProductTypeDtos.cs           # 数据传输对象
+3. Services/IProductTypeService.cs   # 服务接口
+4. Services/Impl/ProductTypeService.cs # 服务实现
+5. Controllers/ProductTypesController.cs # API控制器
+6. Validators/ProductTypeDtoValidator.cs # 数据验证器
+7. Program.cs                        # 注册依赖注入
+
+# 前端 - 在 frontend/src/
+1. mock/interfaces.ts                # TypeScript类型定义
+2. services/unifiedService.ts        # API服务调用
+3. pages/ProductTypePage.tsx         # 页面组件
+4. components/ProductTypeCrudDrawer.tsx # CRUD组件
+5. App.tsx                           # 路由配置
+```
+
+### 常见任务快速参考
+- **API测试**: 使用 `ModelCodeManagement.Api.http` 文件
+- **数据库查看**: 检查 Program.cs 中的初始化日志
+- **前端调试**: 浏览器F12 → Network面板查看API调用
+- **权限调试**: 检查JWT Token中的Claims和角色信息
+
+### 关键文件位置
+```
+# 🔥 核心配置文件
+backend/ModelCodeManagement.Api/ModelCodeManagement.Api/Program.cs    # 服务启动配置
+backend/ModelCodeManagement.Api/ModelCodeManagement.Api/appsettings.json # 系统配置
+frontend/src/services/unifiedService.ts    # 前端API统一入口
+frontend/src/mock/interfaces.ts           # 前端类型定义
+frontend/package.json                     # 前端依赖和脚本
+
+# 🛡️ 权限相关
+backend/.../Services/Impl/AuthenticationService.cs # JWT认证服务  
+backend/.../Extensions/ServiceExtensions.cs        # 权限策略配置
+frontend/src/contexts/AuthContext.tsx             # 前端认证状态
+frontend/src/components/auth/PermissionGate.tsx   # 权限组件
+```
 
 ## 初始化数据
 
@@ -331,6 +410,53 @@ dotnet clean                  # 清理输出
 - **权限数据**: 完整的菜单、操作、API权限配置
 - **角色配置**: SuperAdmin/Admin/User三级角色
 - **数据字典**: 占用类型、操作类型等基础数据
+
+## 常见问题与故障排除
+
+### Q1: 产品类型页面500内部服务器错误
+**问题**: 前端显示HTTP 500错误，无法加载产品类型数据
+**原因**: RBAC权限策略配置不完整，GetAll方法缺少权限验证
+**解决方案**:
+1. 检查ProductTypesController是否有适当的[Authorize(Policy)]特性
+2. 确认ServiceExtensions.cs中的权限策略配置
+3. 验证JWT Token中包含正确的权限claims
+
+### Q2: BadImageFormatException程序集加载错误
+**问题**: 热重载时出现"试图加载格式不正确的程序"错误
+**原因**: dotnet watch热重载过程中程序集状态不一致
+**解决方案**:
+```bash
+dotnet clean && dotnet build && dotnet run
+```
+
+### Q3: 权限验证失败 (403 Forbidden)
+**问题**: 已登录用户无法访问某些API端点
+**原因**: 用户缺少相应的权限或权限策略配置错误
+**解决方案**:
+1. 检查JWT Token中的permission claims
+2. 确认用户角色和权限分配
+3. 验证API端点的权限策略配置
+
+### Q4: 数据库连接失败
+**问题**: 系统启动时数据库连接错误
+**解决方案**:
+1. 检查appsettings.json中的连接字符串
+2. 确认MySQL服务正在运行
+3. 验证数据库用户权限
+
+### Q5: CORS跨域错误
+**问题**: 前端无法访问后端API
+**解决方案**:
+1. 确认appsettings.json中的CorsSettings配置
+2. 检查前端开发服务器端口是否在允许列表中
+3. 验证vite.config.ts中的proxy配置
+
+### Q6: Entity Framework迁移问题
+**问题**: EF Core实体变更后数据库不同步
+**解决方案**:
+1. 开发环境: 系统会自动重建数据库
+2. 生产环境: 使用 `dotnet ef migrations add` 和 `dotnet ef database update`
+3. 检查ApplicationDbContext中的实体配置
 
 ## 扩展建议
 
@@ -349,9 +475,17 @@ dotnet clean                  # 清理输出
 - [ ] **负载均衡**: 多实例部署和负载均衡配置
 - [ ] **CDN**: 静态资源CDN加速
 
+### 架构演进建议
+- [ ] **微服务拆分**: 按业务模块拆分独立服务
+- [ ] **事件驱动**: 引入消息队列和事件总线
+- [ ] **读写分离**: 数据库主从复制和读写分离
+- [ ] **分布式缓存**: Redis集群和分布式锁
+
 ---
 
-**最后更新**: 2025年08月26日 深度扫描版  
-**架构状态**: ✅ 完整分析完成，生产就绪  
+**最后更新**: 2025年08月28日 全面架构升级版  
+**架构状态**: ✅ 权限问题已解决，EF Core升级完成，系统完全就绪  
 **扫描覆盖率**: 100% (4186/4186文件) - 完整项目深度扫描  
+**权限系统**: ✅ RBAC完整实现，支持细粒度权限控制  
+**故障排除**: ✅ 新增EF Core相关问题解决方案  
 **元数据**: `.claude/index.json` 包含完整项目信息和API文档

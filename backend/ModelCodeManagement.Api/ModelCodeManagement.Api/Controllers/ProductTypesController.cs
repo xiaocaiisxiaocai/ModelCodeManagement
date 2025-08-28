@@ -25,6 +25,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 获取所有产品类型
         /// </summary>
         [HttpGet]
+        [Authorize(Policy = "ProductTypeView")] // RBAC权限控制：需要产品类型查看权限
         public async Task<IActionResult> GetAll()
         {
             var result = await _productTypeService.GetAllAsync();
@@ -39,6 +40,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 根据ID获取产品类型
         /// </summary>
         [HttpGet("{id}")]
+        [Authorize(Policy = "ProductTypeView")] // RBAC权限控制：需要产品类型查看权限
         public async Task<IActionResult> GetById(int id)
         {
             var result = await _productTypeService.GetByIdAsync(id);
@@ -53,6 +55,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 根据代码获取产品类型
         /// </summary>
         [HttpGet("by-code/{code}")]
+        [Authorize(Policy = "ProductTypeView")] // RBAC权限控制：需要产品类型查看权限
         public async Task<IActionResult> GetByCode(string code)
         {
             var result = await _productTypeService.GetByCodeAsync(code);
@@ -67,7 +70,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 创建产品类型
         /// </summary>
         [HttpPost]
-        [Authorize(Policy = "Admin")]
+        [Authorize(Policy = "ProductTypeManage")] // RBAC权限控制：需要产品类型管理权限
         [AuditLog("CreateProductType", "ProductType")]
         public async Task<IActionResult> Create([FromBody] CreateProductTypeDto dto)
         {
@@ -83,7 +86,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 更新产品类型
         /// </summary>
         [HttpPut("{id}")]
-        [Authorize(Policy = "Admin")]
+        [Authorize(Policy = "ProductTypeManage")] // RBAC权限控制：需要产品类型管理权限
         [AuditLog("UpdateProductType", "ProductType")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateProductTypeDto dto)
         {
@@ -99,7 +102,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 删除产品类型
         /// </summary>
         [HttpDelete("{id}")]
-        [Authorize(Policy = "SuperAdmin")]
+        [Authorize(Policy = "ProductTypeDelete")] // RBAC权限控制：需要产品类型删除权限
         [AuditLog("DeleteProductType", "ProductType")]
         public async Task<IActionResult> Delete(int id)
         {

@@ -25,6 +25,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 分页查询编码使用记录
         /// </summary>
         [HttpGet]
+        [Authorize(Policy = "CodeUsageView")] // RBAC权限控制：需要编码使用查看权限
         public async Task<IActionResult> GetPaged([FromQuery] CodeUsageQueryDto query)
         {
             var result = await _codeUsageService.GetPagedAsync(query);
@@ -39,6 +40,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 根据分类ID获取编码列表
         /// </summary>
         [HttpGet("by-classification/{classificationId}")]
+        [Authorize(Policy = "CodeUsageView")] // RBAC权限控制：需要编码使用查看权限
         public async Task<IActionResult> GetByClassification(int classificationId, [FromQuery] QueryDto query)
         {
             var result = await _codeUsageService.GetByClassificationAsync(classificationId, null, query);
@@ -114,7 +116,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 分配编码
         /// </summary>
         [HttpPost("{id}/allocate")]
-        [Authorize(Policy = "Admin")]
+        [Authorize(Policy = "CodeUsageManage")] // RBAC权限控制：需要编码使用管理权限
         [AuditLog("AllocateCode", "CodeUsage")]
         public async Task<IActionResult> AllocateCode(int id, [FromBody] AllocateCodeDto dto)
         {
@@ -130,7 +132,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 手动创建编码（2层结构专用）
         /// </summary>
         [HttpPost("create-manual")]
-        [Authorize(Policy = "Admin")]
+        [Authorize(Policy = "CodeUsageManage")] // RBAC权限控制：需要编码使用管理权限
         [AuditLog("CreateManualCode", "CodeUsage")]
         public async Task<IActionResult> CreateManualCode([FromBody] CreateManualCodeDto dto)
         {
@@ -146,7 +148,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 更新编码使用记录
         /// </summary>
         [HttpPut("{id}")]
-        [Authorize(Policy = "Admin")]
+        [Authorize(Policy = "CodeUsageManage")] // RBAC权限控制：需要编码使用管理权限
         [AuditLog("UpdateCodeUsage", "CodeUsage")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateCodeUsageDto dto)
         {
@@ -162,7 +164,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 软删除编码使用记录
         /// </summary>
         [HttpDelete("{id}")]
-        [Authorize(Policy = "Admin")]
+        [Authorize(Policy = "CodeUsageDelete")] // RBAC权限控制：需要编码使用删除权限
         [AuditLog("SoftDeleteCodeUsage", "CodeUsage")]
         public async Task<IActionResult> SoftDelete(int id, [FromQuery] string reason = "")
         {
@@ -178,7 +180,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 恢复软删除的编码使用记录
         /// </summary>
         [HttpPost("{id}/restore")]
-        [Authorize(Policy = "Admin")]
+        [Authorize(Policy = "CodeUsageManage")] // RBAC权限控制：需要编码使用管理权限
         [AuditLog("RestoreCodeUsage", "CodeUsage")]
         public async Task<IActionResult> Restore(int id)
         {

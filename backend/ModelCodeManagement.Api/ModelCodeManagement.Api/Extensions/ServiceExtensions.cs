@@ -216,17 +216,85 @@ namespace ModelCodeManagement.Api.Extensions
                 options.AddPolicy("User", policy => 
                     policy.RequireRole("SuperAdmin", "Admin", "User"));
                 
-                // 基于权限的策略
+                // 基于权限的策略 - 匹配数据库中的权限代码
+                options.AddPolicy("ProductTypeView", policy =>
+                    policy.RequireClaim("permission", "PRODUCT_TYPE_VIEW", "PRODUCT_TYPE_MANAGE", "PRODUCT_TYPE_CREATE", "PRODUCT_TYPE_UPDATE"));
                 options.AddPolicy("ProductTypeManage", policy =>
-                    policy.RequireClaim("Permission", "ProductType.Manage"));
+                    policy.RequireClaim("permission", "PRODUCT_TYPE_MANAGE", "PRODUCT_TYPE_CREATE", "PRODUCT_TYPE_UPDATE"));
+                options.AddPolicy("ProductTypeDelete", policy =>
+                    policy.RequireClaim("permission", "PRODUCT_TYPE_DELETE"));
+                options.AddPolicy("ModelClassificationView", policy =>
+                    policy.RequireClaim("permission", "MODEL_CLASS_VIEW", "MODEL_CLASS_MANAGE", "MODEL_CLASS_CREATE", "MODEL_CLASS_UPDATE"));
                 options.AddPolicy("ModelClassificationManage", policy =>
-                    policy.RequireClaim("Permission", "ModelClassification.Manage"));
+                    policy.RequireClaim("permission", "MODEL_CLASS_MANAGE", "MODEL_CLASS_CREATE", "MODEL_CLASS_UPDATE"));
+                options.AddPolicy("ModelClassificationDelete", policy =>
+                    policy.RequireClaim("permission", "MODEL_CLASS_DELETE"));
+                options.AddPolicy("CodeClassificationView", policy =>
+                    policy.RequireClaim("permission", "CODE_CLASS_VIEW", "CODE_CLASS_MANAGE", "CODE_CLASS_CREATE", "CODE_CLASS_UPDATE"));
+                options.AddPolicy("CodeClassificationManage", policy =>
+                    policy.RequireClaim("permission", "CODE_CLASS_MANAGE", "CODE_CLASS_CREATE", "CODE_CLASS_UPDATE"));
+                options.AddPolicy("CodeClassificationDelete", policy =>
+                    policy.RequireClaim("permission", "CODE_CLASS_DELETE"));
+                options.AddPolicy("CodeUsageView", policy =>
+                    policy.RequireClaim("permission", "CODE_USAGE_VIEW", "CODE_USAGE_MANAGE", "CODE_USAGE_CREATE", "CODE_USAGE_UPDATE"));
                 options.AddPolicy("CodeUsageManage", policy =>
-                    policy.RequireClaim("Permission", "CodeUsage.Manage"));
+                    policy.RequireClaim("permission", "CODE_USAGE_MANAGE", "CODE_USAGE_CREATE", "CODE_USAGE_UPDATE"));
+                options.AddPolicy("CodeUsageDelete", policy =>
+                    policy.RequireClaim("permission", "CODE_USAGE_DELETE"));
                 options.AddPolicy("UserManage", policy =>
-                    policy.RequireClaim("Permission", "User.Manage"));
+                    policy.RequireClaim("permission", "USER_MANAGE", "USER_CREATE", "USER_UPDATE"));
+                options.AddPolicy("UserView", policy =>
+                    policy.RequireClaim("permission", "USER_MANAGE", "USER_CREATE", "USER_UPDATE", "USER_DELETE"));
+                options.AddPolicy("UserDelete", policy =>
+                    policy.RequireClaim("permission", "USER_DELETE"));
+                
+                // 角色管理权限
+                options.AddPolicy("RoleView", policy =>
+                    policy.RequireClaim("permission", "ROLE_MANAGE", "ROLE_CREATE", "ROLE_UPDATE", "ROLE_DELETE"));
+                options.AddPolicy("RoleManage", policy =>
+                    policy.RequireClaim("permission", "ROLE_MANAGE", "ROLE_CREATE", "ROLE_UPDATE"));
+                options.AddPolicy("RoleDelete", policy =>
+                    policy.RequireClaim("permission", "ROLE_DELETE"));
+                
+                // 审计日志权限
+                options.AddPolicy("AuditLogView", policy =>
+                    policy.RequireClaim("permission", "AUDIT_LOG_VIEW"));
+                options.AddPolicy("AuditLogManage", policy =>
+                    policy.RequireClaim("permission", "AUDIT_LOG_VIEW", "SYSTEM_CONFIG"));
+                
+                // 数据字典权限
+                options.AddPolicy("DataDictionaryView", policy =>
+                    policy.RequireClaim("permission", "DATA_DICT_VIEW", "DATA_DICT_MANAGE", "DATA_DICT_CREATE", "DATA_DICT_UPDATE"));
+                options.AddPolicy("DataDictionaryManage", policy =>
+                    policy.RequireClaim("permission", "DATA_DICT_MANAGE", "DATA_DICT_CREATE", "DATA_DICT_UPDATE"));
+                options.AddPolicy("DataDictionaryDelete", policy =>
+                    policy.RequireClaim("permission", "DATA_DICT_DELETE"));
+                
+                // 组织管理权限
+                options.AddPolicy("OrganizationView", policy =>
+                    policy.RequireClaim("permission", "ORG_MANAGE"));
+                options.AddPolicy("OrganizationManage", policy =>
+                    policy.RequireClaim("permission", "ORG_MANAGE"));
+                
+                // 权限管理
+                options.AddPolicy("PermissionView", policy =>
+                    policy.RequireClaim("permission", "ROLE_MANAGE", "SYSTEM_CONFIG"));
+                options.AddPolicy("PermissionManage", policy =>
+                    policy.RequireClaim("permission", "SYSTEM_CONFIG"));
+                
+                // 战情中心权限
+                options.AddPolicy("WarRoomView", policy =>
+                    policy.RequireClaim("permission", "WAR_ROOM_VIEW", "WAR_ROOM_MANAGE"));
+                options.AddPolicy("WarRoomManage", policy =>
+                    policy.RequireClaim("permission", "WAR_ROOM_MANAGE"));
+                
+                // 系统配置权限
                 options.AddPolicy("SystemConfig", policy =>
-                    policy.RequireClaim("Permission", "System.Config"));
+                    policy.RequireClaim("permission", "SYSTEM_CONFIG"));
+                
+                // 批量操作权限 (需要管理员权限)
+                options.AddPolicy("BatchOperation", policy =>
+                    policy.RequireClaim("permission", "PRODUCT_TYPE_MANAGE", "MODEL_CLASS_MANAGE", "CODE_CLASS_MANAGE", "CODE_USAGE_MANAGE", "DATA_DICT_MANAGE"));
             });
 
             return services;

@@ -28,6 +28,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// <param name="query">查询参数</param>
         /// <returns>战情中心数据</returns>
         [HttpPost("data")]
+        [Authorize(Policy = "WarRoomView")] // RBAC权限控制：需要战情中心查看权限
         public async Task<IActionResult> GetWarRoomData([FromBody] WarRoomQueryDto query)
         {
             var result = await _warRoomService.GetWarRoomDataAsync(query);

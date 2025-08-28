@@ -27,7 +27,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 分页获取用户列表
         /// </summary>
         [HttpGet]
-        [Authorize(Roles = "SUPER_ADMIN,ADMIN")]
+        [Authorize(Policy = "UserView")] // RBAC权限控制：需要用户查看权限
         public async Task<IActionResult> GetPaged([FromQuery] QueryDto query)
         {
             var result = await _userManagementService.GetPagedAsync(query);
@@ -38,7 +38,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 根据ID获取用户
         /// </summary>
         [HttpGet("{id:int}")]
-        [Authorize(Roles = "SUPER_ADMIN,ADMIN")]
+        [Authorize(Policy = "UserView")] // RBAC权限控制：需要用户查看权限
         public async Task<IActionResult> GetById(int id)
         {
             var result = await _userManagementService.GetByIdAsync(id);
@@ -53,7 +53,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 根据工号获取用户
         /// </summary>
         [HttpGet("by-employee/{employeeId}")]
-        [Authorize(Roles = "SUPER_ADMIN,ADMIN")]
+        [Authorize(Policy = "UserView")] // RBAC权限控制：需要用户查看权限
         public async Task<IActionResult> GetByEmployeeId(string employeeId)
         {
             var result = await _userManagementService.GetByEmployeeIdAsync(employeeId);
@@ -88,7 +88,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 创建用户
         /// </summary>
         [HttpPost]
-        [Authorize(Roles = "SUPER_ADMIN,ADMIN")]
+        [Authorize(Policy = "UserManage")] // RBAC权限控制：需要用户管理权限
         public async Task<IActionResult> Create([FromBody] CreateUserDto dto)
         {
             var result = await _userManagementService.CreateAsync(dto);
@@ -103,7 +103,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 更新用户信息
         /// </summary>
         [HttpPut("{id:int}")]
-        [Authorize(Roles = "SUPER_ADMIN,ADMIN")]
+        [Authorize(Policy = "UserManage")] // RBAC权限控制：需要用户管理权限
         public async Task<IActionResult> Update(int id, [FromBody] UpdateUserDto dto)
         {
             var result = await _userManagementService.UpdateAsync(id, dto);
@@ -149,7 +149,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 删除用户
         /// </summary>
         [HttpDelete("{id:int}")]
-        [Authorize(Roles = "SUPER_ADMIN")]
+        [Authorize(Policy = "UserDelete")] // RBAC权限控制：需要用户删除权限
         public async Task<IActionResult> Delete(int id)
         {
             var result = await _userManagementService.DeleteAsync(id);
@@ -164,7 +164,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 重置用户密码（自动生成随机密码）
         /// </summary>
         [HttpPost("{id:int}/reset-password")]
-        [Authorize(Roles = "SUPER_ADMIN,ADMIN")]
+        [Authorize(Policy = "UserManage")] // RBAC权限控制：需要用户管理权限
         public async Task<IActionResult> ResetPassword(int id)
         {
             // 生成随机密码
@@ -219,7 +219,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 更新最后登录时间
         /// </summary>
         [HttpPost("{id:int}/update-last-login")]
-        [Authorize(Roles = "SUPER_ADMIN,ADMIN")]
+        [Authorize(Policy = "UserManage")] // RBAC权限控制：需要用户管理权限
         public IActionResult UpdateLastLogin(int id)
         {
             // 这个方法不再需要在Controller中暴露，因为登录时会自动更新

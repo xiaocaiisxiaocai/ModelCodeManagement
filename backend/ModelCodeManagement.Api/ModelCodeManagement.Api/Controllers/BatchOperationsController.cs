@@ -11,7 +11,7 @@ namespace ModelCodeManagement.Api.Controllers
     /// </summary>
     [ApiController]
     [Route("api/v1/batch-operations")]
-    [Authorize(Policy = "Admin")]
+    [Authorize(Policy = "BatchOperation")] // RBAC权限控制：需要批量操作权限
     public class BatchOperationsController : ControllerBase
     {
         private readonly IBatchOperationService _batchOperationService;

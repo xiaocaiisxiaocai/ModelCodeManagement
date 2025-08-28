@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using ModelCodeManagement.Api.Entities;
+using System.Text.Json;
 
 namespace ModelCodeManagement.Api.Data
 {
@@ -80,7 +82,17 @@ namespace ModelCodeManagement.Api.Data
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Id).ValueGeneratedOnAdd();
                 entity.Property(e => e.Type).HasMaxLength(50).IsRequired();
-                entity.Property(e => e.Description).HasColumnType("TEXT");
+
+                // 修复：为Description属性配置JSON值转换器
+                entity.Property(e => e.Description)
+                    .HasConversion(
+                        v => JsonSerializer.Serialize(v ?? new List<string>(), (JsonSerializerOptions)null),
+                        v => JsonSerializer.Deserialize<List<string>>(v, (JsonSerializerOptions)null) ?? new List<string>(),
+                        new ValueComparer<List<string>>(
+                            (c1, c2) => (c1 == null && c2 == null) || (c1 != null && c2 != null && c1.SequenceEqual(c2)),
+                            c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                            c => c.ToList()));
+
                 entity.Property(e => e.HasCodeClassification).HasDefaultValue(true);
 
                 // 配置外键关系

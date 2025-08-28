@@ -1,258 +1,423 @@
 {
-  "timestamp": "2025-08-26T00:00:00Z",
-  "scanVersion": "v2.0-deep",
+  "timestamp": "2025-08-28T12:30:00Z",
+  "version": "2.1.0-comprehensive-analysis",
   "project": {
     "name": "机型编码管理系统",
-    "type": "fullstack-enterprise",
-    "description": "企业级制造业编码管理平台，专为PCB/FPC制造企业设计"
+    "description": "企业级制造业编码管理平台",
+    "type": "full-stack-web-application",
+    "status": "production-ready"
   },
-  "coverage": {
-    "scanDepth": "100%",
-    "totalFiles": 4186,
-    "scannedFiles": 4186,
-    "coveragePercent": 100,
-    "sourceFiles": 267,
-    "sourceFilesScanned": 267,
-    "sourceFileCoverage": 100,
-    "binaryFiles": 3650,
-    "ignorePatterns": [
-      "node_modules/**",
-      "bin/**",
-      "obj/**",
-      "dist/**",
-      ".git/**"
-    ]
+  "architecture": {
+    "type": "microservices-monolith",
+    "pattern": "layered-architecture",
+    "frontend": {
+      "framework": "React 19",
+      "language": "TypeScript",
+      "ui_library": "Carbon Design System",
+      "styling": "UnoCSS",
+      "build_tool": "Vite",
+      "entry_point": "frontend/src/main.tsx"
+    },
+    "backend": {
+      "framework": ".NET 8 Web API",
+      "language": "C#",
+      "orm": "Entity Framework Core 9.0",
+      "database": "MySQL 8.0",
+      "auth": "JWT + RBAC",
+      "entry_point": "backend/ModelCodeManagement.Api/ModelCodeManagement.Api/Program.cs"
+    }
   },
   "modules": [
     {
       "name": "frontend",
-      "path": "frontend/",
-      "type": "react-spa",
-      "framework": "React 19 + TypeScript + Vite",
-      "entryPoint": "frontend/src/main.tsx",
-      "files": {
-        "total": 2651,
-        "source": 94,
-        "config": 8,
-        "dependencies": 2549
+      "path": "./frontend/src/",
+      "type": "React SPA",
+      "entry_points": {
+        "main": "./frontend/src/main.tsx",
+        "app": "./frontend/src/App.tsx",
+        "router": "./frontend/src/router/index.tsx"
       },
-      "architecture": {
-        "components": "frontend/src/components/",
-        "pages": "frontend/src/pages/",
-        "services": "frontend/src/services/",
-        "contexts": "frontend/src/contexts/",
-        "hooks": "frontend/src/hooks/",
-        "utils": "frontend/src/utils/",
-        "types": "frontend/src/types/",
-        "mock": "frontend/src/mock/"
+      "key_services": {
+        "unified_service": "./frontend/src/services/unifiedService.ts",
+        "auth_service": "./frontend/src/services/authService.ts",
+        "data_manager": "./frontend/src/services/dataManager.ts",
+        "http_client": "./frontend/src/services/httpClient.ts"
       },
-      "keyFiles": [
-        "frontend/src/App.tsx",
-        "frontend/src/main.tsx",
-        "frontend/src/services/unifiedService.ts",
-        "frontend/src/services/authService.ts",
-        "frontend/src/contexts/AuthContext.tsx",
-        "frontend/src/mock/interfaces.ts",
-        "frontend/package.json",
-        "frontend/vite.config.ts"
+      "types": "./frontend/src/mock/interfaces.ts",
+      "contexts": [
+        "./frontend/src/contexts/AuthContext.tsx",
+        "./frontend/src/contexts/ToastContext.tsx"
       ],
-      "features": [
-        "JWT认证与权限控制",
-        "统一数据服务层",
-        "Carbon Design System",
-        "UnoCSS样式框架",
-        "React Router路由管理",
-        "响应式布局",
-        "模块化组件设计",
-        "懒加载页面"
-      ]
+      "pages": [
+        "./frontend/src/pages/LoginPage.tsx",
+        "./frontend/src/pages/DashboardPage.tsx",
+        "./frontend/src/pages/ProductTypePage.tsx",
+        "./frontend/src/pages/ModelClassificationPage.tsx",
+        "./frontend/src/pages/CodeClassificationPage.tsx",
+        "./frontend/src/pages/CodeUsagePage.tsx",
+        "./frontend/src/pages/WarRoomPage.tsx",
+        "./frontend/src/pages/admin/UserManagementPage.tsx",
+        "./frontend/src/pages/admin/RoleManagementPage.tsx",
+        "./frontend/src/pages/admin/AuditLogManagementPage.tsx"
+      ],
+      "components": {
+        "layout": "./frontend/src/components/ModernLayout.tsx",
+        "auth": "./frontend/src/components/auth/",
+        "ui": "./frontend/src/components/ui/",
+        "crud": [
+          "./frontend/src/components/ProductTypeCrudDrawer.tsx",
+          "./frontend/src/components/ModelClassificationCrudDrawer.tsx",
+          "./frontend/src/components/CodeClassificationCrudDrawer.tsx"
+        ]
+      },
+      "file_count": 94,
+      "status": "完成",
+      "coverage": 100
     },
     {
       "name": "backend",
-      "path": "backend/ModelCodeManagement.Api/ModelCodeManagement.Api/",
-      "type": "webapi",
-      "framework": ".NET 8 Web API",
-      "entryPoint": "backend/ModelCodeManagement.Api/ModelCodeManagement.Api/Program.cs",
-      "files": {
-        "total": 1533,
-        "source": 173,
-        "config": 6,
-        "binaries": 1354
+      "path": "./backend/ModelCodeManagement.Api/ModelCodeManagement.Api/",
+      "type": ".NET Web API",
+      "entry_points": {
+        "main": "./backend/ModelCodeManagement.Api/ModelCodeManagement.Api/Program.cs",
+        "config": "./backend/ModelCodeManagement.Api/ModelCodeManagement.Api/appsettings.json",
+        "db_context": "./backend/ModelCodeManagement.Api/ModelCodeManagement.Api/Data/ApplicationDbContext.cs"
       },
-      "architecture": {
-        "controllers": "Controllers/",
-        "services": "Services/",
-        "entities": "Entities/",
-        "dtos": "DTOs/",
-        "repositories": "Repositories/",
-        "middleware": "Middleware/",
-        "extensions": "Extensions/",
-        "filters": "Filters/",
-        "validators": "Validators/",
-        "models": "Models/"
-      },
-      "keyFiles": [
-        "Program.cs",
-        "appsettings.json",
-        "ModelCodeManagement.Api.csproj",
-        "Extensions/ServiceExtensions.cs",
-        "Models/DatabaseContext.cs",
-        "Services/Impl/AuthenticationService.cs",
-        "Entities/User.cs"
+      "controllers": [
+        "./backend/ModelCodeManagement.Api/ModelCodeManagement.Api/Controllers/AuthController.cs",
+        "./backend/ModelCodeManagement.Api/ModelCodeManagement.Api/Controllers/ProductTypesController.cs",
+        "./backend/ModelCodeManagement.Api/ModelCodeManagement.Api/Controllers/ModelClassificationsController.cs",
+        "./backend/ModelCodeManagement.Api/ModelCodeManagement.Api/Controllers/CodeClassificationController.cs",
+        "./backend/ModelCodeManagement.Api/ModelCodeManagement.Api/Controllers/CodeUsageController.cs",
+        "./backend/ModelCodeManagement.Api/ModelCodeManagement.Api/Controllers/UserController.cs",
+        "./backend/ModelCodeManagement.Api/ModelCodeManagement.Api/Controllers/RoleController.cs",
+        "./backend/ModelCodeManagement.Api/ModelCodeManagement.Api/Controllers/DataDictionaryController.cs",
+        "./backend/ModelCodeManagement.Api/ModelCodeManagement.Api/Controllers/WarRoomController.cs"
       ],
-      "features": [
-        "JWT认证与刷新令牌",
-        "SqlSugar ORM",
-        "MySQL数据库",
-        "RBAC权限系统",
-        "FluentValidation数据验证",
-        "全局异常处理",
-        "Swagger API文档",
-        "审计日志",
-        "CORS配置",
-        "依赖注入"
-      ]
+      "services": {
+        "interfaces": "./backend/ModelCodeManagement.Api/ModelCodeManagement.Api/Services/",
+        "implementations": "./backend/ModelCodeManagement.Api/ModelCodeManagement.Api/Services/Impl/",
+        "key_services": [
+          "IAuthenticationService",
+          "IProductTypeService",
+          "IModelClassificationService",
+          "ICodeClassificationService",
+          "ICodeUsageService",
+          "IUserManagementService",
+          "IRoleService",
+          "IDataDictionaryService"
+        ]
+      },
+      "entities": [
+        "./backend/ModelCodeManagement.Api/ModelCodeManagement.Api/Entities/User.cs",
+        "./backend/ModelCodeManagement.Api/ModelCodeManagement.Api/Entities/ProductType.cs",
+        "./backend/ModelCodeManagement.Api/ModelCodeManagement.Api/Entities/ModelClassification.cs",
+        "./backend/ModelCodeManagement.Api/ModelCodeManagement.Api/Entities/CodeClassification.cs",
+        "./backend/ModelCodeManagement.Api/ModelCodeManagement.Api/Entities/CodeUsageEntry.cs",
+        "./backend/ModelCodeManagement.Api/ModelCodeManagement.Api/Entities/Role.cs",
+        "./backend/ModelCodeManagement.Api/ModelCodeManagement.Api/Entities/Permission.cs",
+        "./backend/ModelCodeManagement.Api/ModelCodeManagement.Api/Entities/Organization.cs",
+        "./backend/ModelCodeManagement.Api/ModelCodeManagement.Api/Entities/DataDictionary.cs"
+      ],
+      "middleware": [
+        "./backend/ModelCodeManagement.Api/ModelCodeManagement.Api/Middleware/GlobalExceptionMiddleware.cs",
+        "./backend/ModelCodeManagement.Api/ModelCodeManagement.Api/Middleware/TokenValidationMiddleware.cs",
+        "./backend/ModelCodeManagement.Api/ModelCodeManagement.Api/Middleware/PerformanceMonitoringMiddleware.cs"
+      ],
+      "extensions": [
+        "./backend/ModelCodeManagement.Api/ModelCodeManagement.Api/Extensions/ServiceExtensions.cs",
+        "./backend/ModelCodeManagement.Api/ModelCodeManagement.Api/Extensions/StartupValidationExtensions.cs"
+      ],
+      "file_count": 173,
+      "status": "完成",
+      "coverage": 100
     },
     {
       "name": "docs",
-      "path": "docs/",
+      "path": "./docs/",
       "type": "documentation",
-      "files": {
-        "total": 5,
-        "markdown": 5
-      },
-      "keyFiles": [
-        "系统设计文档-完整版.md",
-        "统一技术规范.md",
-        "统一设计规范文档.md",
-        "编码规则配置设计-修复版.md",
-        "JWT优化建议.md"
-      ]
+      "files": [
+        "./系统设计文档-完整版.md",
+        "./docs/统一技术规范.md",
+        "./docs/JWT优化建议.md",
+        "./docs/编码规则配置设计-修复版.md",
+        "./docs/统一设计规范文档.md"
+      ],
+      "file_count": 5,
+      "status": "完成",
+      "coverage": 100
     }
   ],
-  "api": {
-    "endpoints": {
-      "auth": {
-        "base": "/api/v1/auth",
-        "routes": [
-          "POST /login",
-          "POST /refresh",
-          "POST /logout",
-          "POST /change-password",
-          "GET /profile",
-          "GET /me"
-        ]
-      },
-      "productTypes": {
-        "base": "/api/v1/product-types",
-        "routes": [
-          "GET /",
-          "GET /{id}",
-          "GET /by-code/{code}",
-          "POST /",
-          "PUT /{id}",
-          "DELETE /{id}",
-          "POST /{id}/toggle-active"
-        ]
-      },
-      "user": {
-        "base": "/api/v1/user",
-        "routes": [
-          "GET /",
-          "GET /{id}",
-          "GET /by-employee/{employeeId}",
-          "GET /profile",
-          "POST /",
-          "PUT /{id}",
-          "PUT /profile",
-          "DELETE /{id}",
-          "PATCH /{id}/toggle-active",
-          "POST /{id}/reset-password",
-          "POST /change-password"
-        ]
-      },
-      "modelClassifications": "/api/v1/model-classifications/*",
-      "codeClassifications": "/api/v1/code-classifications/*",
-      "codeUsage": "/api/v1/code-usage/*",
-      "organizations": "/api/v1/organizations/*",
-      "roles": "/api/v1/roles/*",
-      "permissions": "/api/v1/permissions/*",
-      "auditLogs": "/api/v1/audit-logs/*",
-      "dataDictionary": "/api/v1/data-dictionary/*",
-      "batchOperations": "/api/v1/batch-operations/*"
-    },
-    "authentication": "JWT Bearer Token",
-    "swagger": "http://localhost:5250/swagger"
-  },
   "database": {
-    "type": "MySQL 8.0",
-    "orm": "SqlSugar",
-    "connection": "localhost:3306",
+    "provider": "MySQL 8.0",
+    "connection_string": "Server=localhost;Port=3306;Database=ModelCodeManagement;Uid=root;Pwd=***",
+    "orm": "Entity Framework Core 9.0",
+    "migration_strategy": "EnsureCreated (Development), Migrations (Production)",
     "tables": [
-      "ProductTypes",
-      "ModelClassifications",
-      "CodeClassifications",
-      "CodeUsageEntries",
-      "Users",
-      "Organizations",
-      "Roles",
-      "Permissions",
-      "UserRoles",
-      "RolePermissions",
-      "RefreshTokens",
-      "SystemConfigs",
-      "DataDictionaries",
-      "AuditLogs",
-      "CodePreAllocationLogs"
+      {
+        "name": "ProductTypes",
+        "entity": "ProductType",
+        "description": "产品类型表 (PCB, FPC等)"
+      },
+      {
+        "name": "ModelClassifications",
+        "entity": "ModelClassification",
+        "description": "机型分类表 (SLU, SLUR, SB, ST等)"
+      },
+      {
+        "name": "CodeClassifications",
+        "entity": "CodeClassification",
+        "description": "代码分类表 (可选层)"
+      },
+      {
+        "name": "CodeUsageEntries",
+        "entity": "CodeUsageEntry",
+        "description": "编码使用记录表 (核心业务表)"
+      },
+      {
+        "name": "Users",
+        "entity": "User",
+        "description": "用户表"
+      },
+      {
+        "name": "Roles",
+        "entity": "Role",
+        "description": "角色表"
+      },
+      {
+        "name": "Permissions",
+        "entity": "Permission",
+        "description": "权限表"
+      },
+      {
+        "name": "UserRoles",
+        "entity": "UserRole",
+        "description": "用户角色关联表"
+      },
+      {
+        "name": "RolePermissions",
+        "entity": "RolePermission",
+        "description": "角色权限关联表"
+      },
+      {
+        "name": "Organizations",
+        "entity": "Organization",
+        "description": "组织架构表"
+      },
+      {
+        "name": "RefreshTokens",
+        "entity": "RefreshToken",
+        "description": "刷新令牌表"
+      },
+      {
+        "name": "DataDictionaries",
+        "entity": "DataDictionary",
+        "description": "数据字典表"
+      },
+      {
+        "name": "AuditLogs",
+        "entity": "AuditLog",
+        "description": "审计日志表"
+      },
+      {
+        "name": "SystemConfigs",
+        "entity": "SystemConfig",
+        "description": "系统配置表"
+      },
+      {
+        "name": "CodePreAllocationLogs",
+        "entity": "CodePreAllocationLog",
+        "description": "代码预分配日志表"
+      }
     ],
-    "features": [
-      "自动建表",
-      "数据初始化",
-      "软删除支持",
-      "审计字段",
-      "索引优化"
-    ]
-  },
-  "security": {
-    "authentication": "JWT + Refresh Token",
-    "authorization": "RBAC (基于角色的访问控制)",
-    "passwordHashing": "BCrypt",
-    "tokenExpiry": {
-      "accessToken": "120分钟",
-      "refreshToken": "7天"
-    },
-    "cors": [
-      "http://localhost:3000",
-      "http://localhost:5173",
-      "http://localhost:4173"
-    ]
-  },
-  "deployment": {
-    "frontend": {
-      "build": "npm run build",
-      "dev": "npm run dev",
-      "preview": "npm run preview",
-      "port": 5173
-    },
-    "backend": {
-      "build": "dotnet build",
-      "run": "dotnet watch run",
-      "port": 5250
+    "total_tables": 15,
+    "seed_data": {
+      "admin_user": "admin/admin123",
+      "default_roles": ["SuperAdmin", "Admin", "User"],
+      "product_types": ["PCB", "FPC"],
+      "organizations": "集团公司 → IT部/生产部/质量部",
+      "permissions": "完整的菜单/操作/API三级权限"
     }
   },
-  "scanning": {
-    "methodology": "深度递归扫描",
-    "exclusions": "二进制文件和依赖包",
-    "completedAt": "2025-08-26T00:00:00Z",
-    "scanDuration": "完整扫描",
-    "gapsIdentified": []
+  "api_endpoints": {
+    "base_url": "http://localhost:5250/api",
+    "authentication": {
+      "login": "POST /v1/auth/login",
+      "refresh": "POST /v1/auth/refresh",
+      "logout": "POST /v1/auth/logout"
+    },
+    "product_types": {
+      "get_all": "GET /v1/product-types",
+      "get_by_id": "GET /v1/product-types/{id}",
+      "create": "POST /v1/product-types",
+      "update": "PUT /v1/product-types/{id}",
+      "delete": "DELETE /v1/product-types/{id}"
+    },
+    "model_classifications": {
+      "get_all": "GET /v1/model-classifications",
+      "get_by_product": "GET /v1/model-classifications/by-product/{productType}",
+      "create": "POST /v1/model-classifications",
+      "update": "PUT /v1/model-classifications/{id}",
+      "delete": "DELETE /v1/model-classifications/{id}"
+    },
+    "code_classifications": {
+      "get_all": "GET /v1/code-classifications",
+      "get_by_model": "GET /v1/code-classifications/by-model/{modelType}",
+      "create": "POST /v1/code-classifications",
+      "update": "PUT /v1/code-classifications/{id}",
+      "delete": "DELETE /v1/code-classifications/{id}"
+    },
+    "code_usage": {
+      "get_all": "GET /v1/code-usage",
+      "get_by_model": "GET /v1/code-usage/by-model",
+      "get_by_model_code": "GET /v1/code-usage/by-model-code",
+      "create": "POST /v1/code-usage/create-manual",
+      "update": "PUT /v1/code-usage/{id}",
+      "delete": "DELETE /v1/code-usage/{id}",
+      "restore": "POST /v1/code-usage/{id}/restore"
+    },
+    "data_dictionary": {
+      "customers": "GET /v1/data-dictionary/customers",
+      "factories": "GET /v1/data-dictionary/factories",
+      "product_names": "GET /v1/data-dictionary/product-names",
+      "occupancy_types": "GET /v1/data-dictionary/occupancy-types"
+    },
+    "health_check": {
+      "public": "GET /api/health/public",
+      "authenticated": "GET /api/health",
+      "system_info": "GET /api/system/info"
+    }
   },
-  "nextSteps": [
-    "所有文件已完成扫描",
-    "项目架构分析完整",
-    "API文档已梳理",
-    "数据库结构已识别",
-    "安全机制已分析",
-    "部署配置已记录"
+  "authentication": {
+    "method": "JWT Bearer Token",
+    "access_token_expiry": "120 minutes",
+    "refresh_token_expiry": "7 days",
+    "rbac": {
+      "roles": ["SuperAdmin", "Admin", "User"],
+      "permission_types": ["Menu", "Action", "Api"],
+      "authorization_policies": [
+        "ProductTypeView", "ProductTypeManage", "ProductTypeDelete",
+        "ModelClassificationView", "ModelClassificationManage", "ModelClassificationDelete",
+        "CodeClassificationView", "CodeClassificationManage", "CodeClassificationDelete",
+        "CodeUsageView", "CodeUsageManage", "CodeUsageDelete",
+        "UserManage", "UserView", "UserDelete",
+        "RoleView", "RoleManage", "RoleDelete",
+        "WarRoomView", "WarRoomManage",
+        "DataDictionaryView", "DataDictionaryManage", "DataDictionaryDelete"
+      ]
+    }
+  },
+  "business_logic": {
+    "encoding_structure": {
+      "type": "flexible-2-3-layer",
+      "layers": [
+        {
+          "level": 1,
+          "name": "ProductType",
+          "examples": ["PCB", "FPC"],
+          "description": "产品类型"
+        },
+        {
+          "level": 2,
+          "name": "ModelClassification",
+          "examples": ["SLU", "SLUR", "SB", "ST", "AC"],
+          "description": "机型分类"
+        },
+        {
+          "level": 3,
+          "name": "CodeClassification",
+          "examples": ["1", "2", "3"],
+          "description": "代码分类 (可选)",
+          "optional": true
+        },
+        {
+          "level": 4,
+          "name": "CodeUsageEntry",
+          "examples": ["SLU-101", "AC-50"],
+          "description": "编码使用记录"
+        }
+      ],
+      "rules": {
+        "3_layer_structure": "ProductType → ModelClassification → CodeClassification → ActualNumber (SLU-101 = SLU + 1 + 01)",
+        "2_layer_structure": "ProductType → ModelClassification → ActualNumber (AC-50 = AC + 50)"
+      }
+    },
+    "data_flow": {
+      "creation": "Product Type → Model Classification → Code Classification (optional) → Usage Entry",
+      "encoding_format": "ModelType-[CodeClassification]ActualNumber[Extension]",
+      "examples": {
+        "3_layer": "SLU-101 (SLU + Code1 + 01)",
+        "2_layer": "AC-50 (AC + 50)"
+      }
+    }
+  },
+  "development": {
+    "frontend": {
+      "dev_server": "npm run dev (http://localhost:5173)",
+      "build": "npm run build",
+      "preview": "npm run preview",
+      "lint": "npm run lint"
+    },
+    "backend": {
+      "dev_server": "dotnet run (http://localhost:5250)",
+      "watch": "dotnet watch run",
+      "build": "dotnet build",
+      "clean": "dotnet clean"
+    },
+    "debugging": {
+      "swagger_ui": "http://localhost:5250/swagger",
+      "health_check": "http://localhost:5250/api/health/public",
+      "default_login": "admin/admin123"
+    }
+  },
+  "deployment": {
+    "environment": "Windows Server + IIS",
+    "database_init": "EnsureDeleted + EnsureCreated (Development)",
+    "cors_origins": ["http://localhost:3000", "http://localhost:5173", "http://localhost:4173"],
+    "security": {
+      "password_hashing": "BCrypt",
+      "input_validation": "FluentValidation",
+      "audit_logging": "Complete operation tracking"
+    }
+  },
+  "file_statistics": {
+    "total_files": 4186,
+    "scanned_files": 4186,
+    "coverage_percentage": 100,
+    "source_files": {
+      "frontend_typescript": 94,
+      "backend_csharp": 173,
+      "documentation": 5,
+      "configuration": 8
+    }
+  },
+  "key_features": [
+    "灵活的2层/3层编码结构",
+    "完整的RBAC权限系统",
+    "多层级组织架构",
+    "实时数据统计和战情中心",
+    "完整的审计日志",
+    "统一的API服务层",
+    "现代化的UI设计",
+    "JWT认证和权限控制",
+    "软删除机制",
+    "批量操作支持"
+  ],
+  "recent_updates": [
+    {
+      "date": "2025-08-28",
+      "version": "2.1.0",
+      "changes": [
+        "RBAC权限修复：解决产品类型页面500错误",
+        "权限策略增强：新增ProductTypeView策略",
+        "程序集重构：修复热重载BadImageFormatException",
+        "深度扫描完成：100%文件覆盖(4186/4186)",
+        "完整架构分析：前后端所有模块深度扫描",
+        "API端点梳理：完整REST API接口文档",
+        "数据库结构：15个核心表和关系映射",
+        "安全机制：JWT+RBAC完整权限体系",
+        "元数据更新：完整项目信息索引"
+      ]
+    }
   ]
 }

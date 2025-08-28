@@ -15,11 +15,14 @@ export interface DataResponse<T> {
  */
 export interface ModelClassification {
     id?: string; // 可选的ID，用于更新操作
-    type: string; // 例如: 'SLU-', 'SLUR-', 'SB-', 'ST-'
+    type: string; // 例如: 'SLU', 'SLUR', 'SB', 'ST' (只包含大写字母)
     description: string[]; // 描述列表
     productType: string; // 关联的产品类型代码，如 'PCB', 'FPC'
     productTypeId?: number; // 产品类型ID，用于后端API调用
     hasCodeClassification?: boolean; // 可选：是否需要代码分类层，默认为true（3层结构）。设为false时直接跳转到代码使用（2层结构）
+    createdAt?: string; // 创建时间
+    codeClassificationCount?: number; // 代码分类数量
+    codeUsageCount?: number; // 代码使用数量
   }
   
   /**
@@ -56,8 +59,12 @@ export interface ModelClassification {
    * @description 产品类型
    */
   export interface ProductType {
-    id: string; // 唯一标识符
-    code: string; // 产品代码，如 'PCB', 'FPC'
+    id?: string; // 唯一标识符 (前端格式)
+    Id?: number; // 唯一标识符 (后端格式)
+    code?: string; // 产品代码，如 'PCB', 'FPC' (前端格式)
+    Code?: string; // 产品代码 (后端格式)
+    CreatedAt?: string; // 创建时间 (后端格式)
+    ModelClassificationCount?: number; // 机型分类数量 (后端格式)
   }
 
   /**

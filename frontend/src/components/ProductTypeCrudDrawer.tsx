@@ -47,7 +47,9 @@ const ProductTypeCrudDrawer: React.FC<ProductTypeCrudDrawerProps> = ({
   // 处理输入变化
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    // 产品代码自动转换为大写
+    const processedValue = name === 'code' ? value.toUpperCase() : value;
+    setFormData(prev => ({ ...prev, [name]: processedValue }));
     
     // 清除该字段的错误
     if (errors[name]) {
@@ -65,6 +67,17 @@ const ProductTypeCrudDrawer: React.FC<ProductTypeCrudDrawerProps> = ({
     
     if (!formData.code || formData.code.trim() === '') {
       newErrors.code = '产品代码不能为空';
+    } else {
+      const code = formData.code.trim();
+      
+      // 检查长度
+      if (code.length < 2 || code.length > 20) {
+        newErrors.code = '产品代码长度必须在2-20位之间';
+      }
+      // 检查格式：只能包含大写字母和数字
+      else if (!/^[A-Z0-9]+$/.test(code)) {
+        newErrors.code = '产品代码只能包含大写字母和数字';
+      }
     }
     
     setErrors(newErrors);
@@ -152,7 +165,7 @@ const ProductTypeCrudDrawer: React.FC<ProductTypeCrudDrawerProps> = ({
                 value={formData.code}
                 onChange={handleChange}
                 disabled={isReadOnly || isLoading}
-                placeholder="例如: PCB, FPC"
+                placeholder="2-20位大写字母或数字，如: PCB, FPC, HDI"
                 className={`w-full px-3 py-2 border ${errors.code ? 'border-red-500' : 'border-gray-300'} rounded-md ${(isReadOnly || isLoading) ? 'bg-gray-100' : 'focus:outline-none focus:ring-2 focus:ring-blue-500'}`}
               />
               {errors.code && <p className="text-red-500 text-xs mt-1">{errors.code}</p>}

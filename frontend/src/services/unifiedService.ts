@@ -104,7 +104,11 @@ export class UnifiedProductTypeService extends BaseDataService<ProductType> {
 
   async addProductType(productType: Omit<ProductType, 'id'>): Promise<DataResponse<ProductType>> {
     try {
-      const response = await httpClient.post<any>('/v1/product-types', productType);
+      // 🔧 只发送后端需要的字段
+      const createDto = {
+        code: productType.code
+      };
+      const response = await httpClient.post<any>('/v1/product-types', createDto);
       
       if (response.success && response.data) {
         // 🔧 转换后端数据格式为前端期望格式
@@ -249,17 +253,35 @@ export class UnifiedModelClassificationService extends BaseDataService<ModelClas
           }
         }
         
-        // 转换后端数据格式为前端期望格式
-        const modelClassifications: ModelClassification[] = rawData.map((item: any) => ({
-          id: item.Id?.toString() || item.id?.toString(),
-          type: item.Type || item.type || '',
-          description: Array.isArray(item.Description) ? item.Description : 
-                      (item.description ? (Array.isArray(item.description) ? item.description : [item.description]) : []),
-          productType: item.ProductType || item.productType || productType,
-          productTypeId: item.ProductTypeId || item.productTypeId,
-          hasCodeClassification: item.HasCodeClassification !== undefined ? item.HasCodeClassification : 
-                                (item.hasCodeClassification !== undefined ? item.hasCodeClassification : true)
-        }));
+        // 转换后端数据格式为前端统一格式，同时在服务层维护ID映射
+        const modelClassifications: ModelClassification[] = rawData.map((item: any) => {
+          const frontendId = item.Id?.toString() || item.id?.toString();
+          
+          // 创建前端统一格式的对象
+          const classification: ModelClassification = {
+            id: frontendId,
+            type: item.Type || item.type || '',
+            description: Array.isArray(item.Description) ? item.Description : 
+                        (item.description ? (Array.isArray(item.description) ? item.description : [item.description]) : []),
+            productType: item.ProductType || item.productType || productType,
+            productTypeId: item.ProductTypeId || item.productTypeId,
+            hasCodeClassification: item.HasCodeClassification !== undefined ? item.HasCodeClassification : 
+                                  (item.hasCodeClassification !== undefined ? item.hasCodeClassification : true),
+            createdAt: item.CreatedAt || item.createdAt,
+            codeClassificationCount: item.CodeClassificationCount || item.codeClassificationCount || 0,
+            codeUsageCount: item.CodeUsageCount || item.codeUsageCount || 0
+          };
+          
+          // 存储ID映射，用于更新操作 (在对象的不可枚举属性中存储原始后端ID)
+          Object.defineProperty(classification, '_backendId', {
+            value: item.Id,
+            writable: false,
+            enumerable: false,
+            configurable: false
+          });
+          
+          return classification;
+        });
         
         
         return {
@@ -279,27 +301,38 @@ export class UnifiedModelClassificationService extends BaseDataService<ModelClas
 
   async addModelClassification(classification: ModelClassification): Promise<DataResponse<ModelClassification>> {
     try {
+      console.log('🚀 [前端] addModelClassification被调用');
+      console.log('📝 [前端] 接收到的classification数据:', classification);
+      
       // 需要获取产品类型ID
       let productTypeId = classification.productTypeId;
       
       if (!productTypeId && classification.productType) {
+        console.log(`🔍 [前端] 根据产品类型代码获取ID: ${classification.productType}`);
         // 根据产品类型代码获取ID
         const productTypesResponse = await httpClient.get<ProductType[]>('/v1/product-types');
         
         if (productTypesResponse.success && productTypesResponse.data) {
-          const productType = productTypesResponse.data.find(pt => pt.code === classification.productType);
+          console.log('🔍 [前端] 产品类型API返回数据:', productTypesResponse.data);
+          const productType = productTypesResponse.data.find(pt => 
+            (pt.code || pt.Code) === classification.productType
+          );
+          console.log('🔍 [前端] 匹配的产品类型:', productType);
           
           if (productType) {
-            productTypeId = parseInt(productType.id);
+            // 后端返回的是大写的Id和Code
+            productTypeId = parseInt(productType.Id?.toString() || productType.id?.toString() || '0');
+            console.log(`✅ [前端] 找到产品类型ID: ${productTypeId}`);
           }
         }
       }
       
       if (!productTypeId) {
+        console.log(`❌ [前端] 无法找到产品类型ID: ${classification.productType}`);
         return { success: false, error: `无法找到产品类型ID: ${classification.productType}` };
       }
       
-      // 转换为后端期望的格式
+      // 转换为后端期望的格式 (使用PascalCase字段名)
       const createDto = {
         Type: classification.type,
         Description: classification.description || [],
@@ -307,8 +340,14 @@ export class UnifiedModelClassificationService extends BaseDataService<ModelClas
         HasCodeClassification: classification.hasCodeClassification ?? true
       };
       
-      return await httpClient.post<ModelClassification>('/v1/model-classifications', createDto);
+      console.log('📤 [前端] 发送到后端的DTO数据:', createDto);
+      
+      const result = await httpClient.post<ModelClassification>('/v1/model-classifications', createDto);
+      console.log('📥 [前端] 后端返回结果:', result);
+      
+      return result;
     } catch (error) {
+      console.error('❌ [前端] addModelClassification异常:', error);
       ErrorHandler.handleAsyncError(error, 'ModelClassificationService.addModelClassification', { classification });
       return { success: false, error: `添加机型分类失败: ${error}` };
     }
@@ -316,8 +355,70 @@ export class UnifiedModelClassificationService extends BaseDataService<ModelClas
 
   async updateModelClassification(id: string, updates: Partial<ModelClassification>): Promise<DataResponse<ModelClassification>> {
     try {
-      return await httpClient.put<ModelClassification>(`/v1/model-classifications/${id}`, updates);
+      // 需要获取产品类型ID
+      let productTypeId = updates.productTypeId;
+      
+      if (!productTypeId && updates.productType) {
+        console.log(`🔍 [前端] 根据产品类型代码获取ID: ${updates.productType}`);
+        // 根据产品类型代码获取ID
+        const productTypesResponse = await httpClient.get<ProductType[]>('/v1/product-types');
+        
+        if (productTypesResponse.success && productTypesResponse.data) {
+          const productType = productTypesResponse.data.find(pt => 
+            (pt.code || pt.Code) === updates.productType
+          );
+          
+          if (productType) {
+            // 后端返回的是大写的Id和Code
+            productTypeId = parseInt(productType.Id?.toString() || productType.id?.toString() || '0');
+            console.log(`✅ [前端] 找到产品类型ID: ${productTypeId}`);
+          }
+        }
+      }
+      
+      if (!productTypeId) {
+        console.log(`❌ [前端] 无法找到产品类型ID: ${updates.productType}`);
+        return { success: false, error: `无法找到产品类型ID: ${updates.productType}` };
+      }
+      
+      // 转换为后端期望的格式 (使用PascalCase字段名)
+      const updateDto = {
+        Type: updates.type || '',
+        Description: updates.description || [],
+        ProductTypeId: productTypeId,
+        HasCodeClassification: updates.hasCodeClassification ?? true
+      };
+      
+      console.log('📤 [前端] 发送到后端的更新DTO数据:', updateDto);
+      
+      const response = await httpClient.put<any>(`/v1/model-classifications/${id}`, updateDto);
+      
+      if (response.success && response.data) {
+        // 转换后端数据格式为前端期望格式
+        const updatedModelClassification: ModelClassification = {
+          id: response.data.Id?.toString() || response.data.id?.toString() || '',
+          type: response.data.Type || response.data.type || '',
+          description: Array.isArray(response.data.Description) ? response.data.Description : 
+                      (response.data.description ? (Array.isArray(response.data.description) ? response.data.description : [response.data.description]) : []),
+          productType: response.data.ProductType || response.data.productType || updates.productType || '',
+          productTypeId: response.data.ProductTypeId || response.data.productTypeId,
+          hasCodeClassification: response.data.HasCodeClassification !== undefined ? response.data.HasCodeClassification : 
+                                (response.data.hasCodeClassification !== undefined ? response.data.hasCodeClassification : true),
+          createdAt: response.data.CreatedAt || response.data.createdAt,
+          codeClassificationCount: response.data.CodeClassificationCount || response.data.codeClassificationCount || 0,
+          codeUsageCount: response.data.CodeUsageCount || response.data.codeUsageCount || 0
+        };
+        
+        return {
+          success: true,
+          data: updatedModelClassification,
+          message: response.message
+        };
+      }
+      
+      return response;
     } catch (error) {
+      console.error('❌ [前端] updateModelClassification异常:', error);
       ErrorHandler.handleAsyncError(error, 'ModelClassificationService.updateModelClassification', { id, updates });
       return { success: false, error: `更新机型分类失败: ${error}` };
     }
@@ -335,10 +436,16 @@ export class UnifiedModelClassificationService extends BaseDataService<ModelClas
 
   async getModelClassificationByType(productType: string, modelType: string): Promise<DataResponse<ModelClassification | null>> {
     try {
-      const response = await httpClient.get<ModelClassification[]>(`/v1/model-classifications/by-product/${productType}`);
+      console.log(`🔍 [前端] getModelClassificationByType: productType=${productType}, modelType=${modelType}`);
+      
+      // 重用已有的方法来获取格式化后的数据
+      const response = await this.getModelClassificationsByProductType(productType);
       
       if (response.success && response.data) {
+        console.log(`📋 [前端] 所有机型分类:`, response.data.map(mc => mc.type));
         const modelClassification = response.data.find(mc => mc.type === modelType);
+        console.log(`🔍 [前端] 找到的机型分类:`, modelClassification);
+        
         return {
           success: true,
           data: modelClassification || null
@@ -347,6 +454,7 @@ export class UnifiedModelClassificationService extends BaseDataService<ModelClas
       
       return { success: false, error: response.error || '获取机型分类失败' };
     } catch (error) {
+      console.error('❌ [前端] getModelClassificationByType异常:', error);
       ErrorHandler.handleAsyncError(error, 'ModelClassificationService.getModelClassificationByType', { productType, modelType });
       return { success: false, error: `获取机型分类失败: ${error}` };
     }
@@ -386,6 +494,7 @@ export class UnifiedCodeClassificationService extends BaseDataService<CodeClassi
         
         // 转换后端数据格式为前端期望格式
         const codeClassifications: CodeClassification[] = rawData.map((item: any) => ({
+          id: item.Id?.toString() || item.id?.toString() || '',
           code: item.Code || item.code || '',
           name: item.Name || item.name || '',
           modelType: item.ModelType || item.modelType || ''
@@ -435,6 +544,7 @@ export class UnifiedCodeClassificationService extends BaseDataService<CodeClassi
         
         // 转换后端数据格式为前端期望格式
         const codeClassifications: CodeClassification[] = rawData.map((item: any) => ({
+          id: item.Id?.toString() || item.id?.toString() || '',
           code: item.Code || item.code || '',
           name: item.Name || item.name || '',
           modelType: item.ModelType || item.modelType || modelType
@@ -458,29 +568,40 @@ export class UnifiedCodeClassificationService extends BaseDataService<CodeClassi
 
   async addCodeClassification(classification: Pick<CodeClassification, 'code' | 'name'> & { modelType: string }, productType: string): Promise<DataResponse<CodeClassification>> {
     try {
+      console.log('🚀 [前端] addCodeClassification被调用');
+      console.log('📝 [前端] 接收到的classification数据:', classification);
+      console.log('📝 [前端] 产品类型:', productType);
+      
       // 获取ModelClassification ID
       const modelClassResponse = await unifiedServices.modelClassification.getModelClassificationByType(productType, classification.modelType);
       
       if (!modelClassResponse.success || !modelClassResponse.data) {
+        console.log(`❌ [前端] 找不到机型分类: ${classification.modelType}`);
         return { success: false, error: `找不到机型分类: ${classification.modelType}` };
       }
+      
+      console.log('✅ [前端] 找到机型分类:', modelClassResponse.data);
 
       // 使用新的分离字段结构：code存储数字，name存储名称
       const code = classification.code;
       const name = classification.name || '';
       
       if (!code || !name) {
+        console.log(`❌ [前端] 代码或名称为空 - code: ${code}, name: ${name}`);
         return { success: false, error: '代码和名称都不能为空' };
       }
 
-      // 构造后端期望的DTO
+      // 构造后端期望的DTO (使用PascalCase字段名)
       const createDto = {
-        code: classification.code,
-        name: name,
-        modelClassificationId: parseInt(modelClassResponse.data.id || '0')
+        Code: classification.code,
+        Name: name,
+        ModelClassificationId: parseInt(modelClassResponse.data.id || '0')
       };
+      
+      console.log('📤 [前端] 发送到后端的创建DTO数据:', createDto);
 
       const response = await httpClient.post<any>('/v1/code-classifications', createDto);
+      console.log('📥 [前端] 后端返回结果:', response);
       
       if (response.success && response.data) {
         // 转换后端数据格式为前端期望格式
@@ -499,6 +620,7 @@ export class UnifiedCodeClassificationService extends BaseDataService<CodeClassi
       
       return response;
     } catch (error) {
+      console.error('❌ [前端] addCodeClassification异常:', error);
       ErrorHandler.handleAsyncError(error, 'CodeClassificationService.addCodeClassification', { classification, productType });
       return { success: false, error: `添加代码分类失败: ${error}` };
     }
@@ -507,11 +629,17 @@ export class UnifiedCodeClassificationService extends BaseDataService<CodeClassi
 
   async updateCodeClassification(id: string, updates: Partial<CodeClassification>): Promise<DataResponse<CodeClassification>> {
     try {
-      // 构造后端期望的UpdateCodeClassificationDto
+      console.log('🚀 [前端] updateCodeClassification被调用');
+      console.log('📝 [前端] ID:', id);
+      console.log('📝 [前端] 更新数据:', updates);
+      
+      // 构造后端期望的UpdateCodeClassificationDto (使用PascalCase字段名)
       const updateDto = {
-        code: updates.code || '',
-        name: updates.name || ''
+        Code: updates.code || '',
+        Name: updates.name || ''
       };
+      
+      console.log('📤 [前端] 发送到后端的更新DTO数据:', updateDto);
       
       const response = await httpClient.put<any>(`/v1/code-classifications/${id}`, updateDto);
       

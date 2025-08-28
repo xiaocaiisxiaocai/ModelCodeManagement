@@ -57,7 +57,7 @@ namespace ModelCodeManagement.Api.Extensions
             {
                 Id = entity.Id,
                 Type = entity.Type,
-                Description = entity.GetDescriptionList(),
+                Description = entity.Description,
                 ProductType = entity.ProductType?.Code ?? "",
                 ProductTypeId = entity.ProductTypeId,
                 HasCodeClassification = entity.HasCodeClassification,
@@ -79,7 +79,7 @@ namespace ModelCodeManagement.Api.Extensions
                 HasCodeClassification = dto.HasCodeClassification,
                 CreatedAt = DateTime.Now
             };
-            entity.SetDescriptionList(dto.Description);
+            entity.Description = dto.Description;
             return entity;
         }
 
@@ -91,7 +91,7 @@ namespace ModelCodeManagement.Api.Extensions
             entity.Type = dto.Type;
             entity.ProductTypeId = dto.ProductTypeId;
             entity.HasCodeClassification = dto.HasCodeClassification;
-            entity.SetDescriptionList(dto.Description);
+            entity.Description = dto.Description;
         }
 
         #endregion

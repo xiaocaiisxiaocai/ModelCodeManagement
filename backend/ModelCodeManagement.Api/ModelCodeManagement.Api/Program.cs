@@ -25,14 +25,31 @@ builder.Services.AddControllers(options =>
 })
 .AddJsonOptions(options =>
 {
-    // 支持中文编码
-    options.JsonSerializerOptions.Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
+    // 支持中文编码 - 使用更安全的中文编码器
+    options.JsonSerializerOptions.Encoder = System.Text.Encodings.Web.JavaScriptEncoder.Create(
+        System.Text.Unicode.UnicodeRanges.BasicLatin,
+        System.Text.Unicode.UnicodeRanges.CjkUnifiedIdeographs,
+        System.Text.Unicode.UnicodeRanges.CjkUnifiedIdeographsExtensionA,
+        System.Text.Unicode.UnicodeRanges.CjkSymbolsandPunctuation,
+        System.Text.Unicode.UnicodeRanges.GeneralPunctuation);
+    
     // 保持属性名大小写
     options.JsonSerializerOptions.PropertyNamingPolicy = null;
+    
     // 允许尾随逗号
     options.JsonSerializerOptions.AllowTrailingCommas = true;
+    
     // 读取注释
     options.JsonSerializerOptions.ReadCommentHandling = System.Text.Json.JsonCommentHandling.Skip;
+    
+    // 设置默认缓冲区大小以处理较大的JSON
+    options.JsonSerializerOptions.DefaultBufferSize = 16384;
+    
+    // 处理循环引用
+    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+    
+    // 配置更宽松的数字处理
+    options.JsonSerializerOptions.NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString;
 });
 
 // 添加FluentValidation
@@ -274,7 +291,27 @@ static async Task SeedDataAsync(ApplicationDbContext dbContext, bool isDevelopme
 
             // 战情中心权限  
             new Permission { Code = "WAR_ROOM_VIEW", Name = "查看战情中心", Type = "Menu", ParentId = null, Path = "/11/", Level = 1, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now },
-            new Permission { Code = "WAR_ROOM_MANAGE", Name = "管理战情中心", Type = "Action", ParentId = 11, Path = "/11/1/", Level = 2, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now }
+            new Permission { Code = "WAR_ROOM_MANAGE", Name = "管理战情中心", Type = "Action", ParentId = 11, Path = "/11/1/", Level = 2, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now },
+            
+            // 补充缺失的权限 - 这些权限在ServiceExtensions中被引用但未在数据库中初始化
+            // 用户查看权限 (独立于用户管理)
+            new Permission { Code = "USER_VIEW", Name = "查看用户信息", Type = "Action", ParentId = 1, Path = "/1/4/", Level = 2, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now },
+            
+            // 角色查看权限 (独立于角色管理)  
+            new Permission { Code = "ROLE_VIEW", Name = "查看角色信息", Type = "Action", ParentId = 2, Path = "/2/4/", Level = 2, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now },
+            
+            // 组织查看权限 (独立于组织管理)
+            new Permission { Code = "ORG_VIEW", Name = "查看组织架构", Type = "Action", ParentId = 3, Path = "/3/1/", Level = 2, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now },
+            
+            // 权限管理权限
+            new Permission { Code = "PERMISSION_MANAGE", Name = "权限管理", Type = "Menu", ParentId = null, Path = "/12/", Level = 1, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now },
+            new Permission { Code = "PERMISSION_VIEW", Name = "查看权限", Type = "Action", ParentId = 12, Path = "/12/1/", Level = 2, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now },
+            new Permission { Code = "PERMISSION_CREATE", Name = "创建权限", Type = "Action", ParentId = 12, Path = "/12/2/", Level = 2, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now },
+            new Permission { Code = "PERMISSION_UPDATE", Name = "编辑权限", Type = "Action", ParentId = 12, Path = "/12/3/", Level = 2, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now },
+            new Permission { Code = "PERMISSION_DELETE", Name = "删除权限", Type = "Action", ParentId = 12, Path = "/12/4/", Level = 2, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now },
+            
+            // 批量操作权限
+            new Permission { Code = "BATCH_OPERATION", Name = "批量操作", Type = "Menu", ParentId = null, Path = "/13/", Level = 1, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now }
         };
         
         dbContext.Permissions.AddRange(permissions);
@@ -345,7 +382,8 @@ static async Task InitializeRbacDataAsync(ApplicationDbContext dbContext, bool i
                 "MODEL_CLASS_MANAGE", "MODEL_CLASS_CREATE", "MODEL_CLASS_UPDATE", "MODEL_CLASS_DELETE", "MODEL_CLASS_VIEW",
                 "CODE_CLASS_MANAGE", "CODE_CLASS_CREATE", "CODE_CLASS_UPDATE", "CODE_CLASS_DELETE", "CODE_CLASS_VIEW",
                 "CODE_USAGE_MANAGE", "CODE_USAGE_CREATE", "CODE_USAGE_UPDATE", "CODE_USAGE_DELETE", "CODE_USAGE_VIEW",
-                "DATA_DICT_MANAGE", "DATA_DICT_CREATE", "DATA_DICT_UPDATE", "DATA_DICT_DELETE", "DATA_DICT_VIEW"
+                "DATA_DICT_MANAGE", "DATA_DICT_CREATE", "DATA_DICT_UPDATE", "DATA_DICT_DELETE", "DATA_DICT_VIEW",
+                "USER_VIEW", "ROLE_VIEW", "ORG_VIEW", "PERMISSION_VIEW", "BATCH_OPERATION"
             };
             
             var adminPermissions = allPermissions.Where(p => adminPermissionCodes.Contains(p.Code)).ToList();
@@ -559,9 +597,9 @@ static async Task InitializeTestDataAsync(ApplicationDbContext dbContext)
         {
             var modelClassifications = new[]
             {
-                new ModelClassification { Type = "SLU", Description = "[\"单层内层板专用暂存设备\"]", ProductTypeId = pcbProductType.Id, HasCodeClassification = true, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now },
-                new ModelClassification { Type = "SLUR", Description = "[\"单层内层板补强专用设备\"]", ProductTypeId = pcbProductType.Id, HasCodeClassification = true, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now },
-                new ModelClassification { Type = "SB", Description = "[\"薄板专用处理设备\"]", ProductTypeId = pcbProductType.Id, HasCodeClassification = true, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now }
+                new ModelClassification { Type = "SLU", Description = new List<string> { "单层内层板专用暂存设备" }, ProductTypeId = pcbProductType.Id, HasCodeClassification = true, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now },
+                new ModelClassification { Type = "SLUR", Description = new List<string> { "单层内层板补强专用设备" }, ProductTypeId = pcbProductType.Id, HasCodeClassification = true, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now },
+                new ModelClassification { Type = "SB", Description = new List<string> { "薄板专用处理设备" }, ProductTypeId = pcbProductType.Id, HasCodeClassification = true, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now }
             };
             
             dbContext.ModelClassifications.AddRange(modelClassifications);
@@ -573,8 +611,8 @@ static async Task InitializeTestDataAsync(ApplicationDbContext dbContext)
         {
             var fpcModelClassifications = new[]
             {
-                new ModelClassification { Type = "ST", Description = "[\"製程中間轉角轉向\"]", ProductTypeId = fpcProductType.Id, HasCodeClassification = true, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now },
-                new ModelClassification { Type = "AC", Description = "[\"自動化控制系統\", \"無需代碼分類的直接使用模式\"]", ProductTypeId = fpcProductType.Id, HasCodeClassification = false, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now }
+                new ModelClassification { Type = "ST", Description = new List<string> { "製程中間轉角轉向" }, ProductTypeId = fpcProductType.Id, HasCodeClassification = true, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now },
+                new ModelClassification { Type = "AC", Description = new List<string> { "自動化控制系統", "無需代碼分類的直接使用模式" }, ProductTypeId = fpcProductType.Id, HasCodeClassification = false, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now }
             };
             
             dbContext.ModelClassifications.AddRange(fpcModelClassifications);

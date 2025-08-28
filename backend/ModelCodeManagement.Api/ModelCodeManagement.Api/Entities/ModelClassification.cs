@@ -26,10 +26,9 @@ namespace ModelCodeManagement.Api.Entities
 
 
         /// <summary>
-        /// 描述信息 (JSON格式的描述数组)
+        /// 描述信息 (EF Core会自动处理JSON转换)
         /// </summary>
-        [Column(TypeName = "TEXT")]
-        public string? Description { get; set; }
+        public List<string> Description { get; set; } = new();
 
         /// <summary>
         /// 产品类型ID (关联到ProductTypes)
@@ -68,31 +67,5 @@ namespace ModelCodeManagement.Api.Entities
         /// 关联的代码使用记录列表
         /// </summary>
         public virtual ICollection<CodeUsageEntry> CodeUsageEntries { get; set; } = new List<CodeUsageEntry>();
-
-        /// <summary>
-        /// 获取描述数组
-        /// </summary>
-        public List<string> GetDescriptionList()
-        {
-            if (string.IsNullOrEmpty(Description))
-                return new List<string>();
-
-            try
-            {
-                return JsonSerializer.Deserialize<List<string>>(Description) ?? new List<string>();
-            }
-            catch
-            {
-                return new List<string> { Description };
-            }
-        }
-
-        /// <summary>
-        /// 设置描述数组
-        /// </summary>
-        public void SetDescriptionList(List<string> descriptions)
-        {
-            Description = JsonSerializer.Serialize(descriptions);
-        }
     }
 }

@@ -24,7 +24,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 分页获取角色列表
         /// </summary>
         [HttpGet]
-        [Authorize(Roles = "SUPER_ADMIN,ADMIN")]
+        [Authorize(Policy = "RoleView")] // RBAC权限控制：需要角色查看权限
         public async Task<IActionResult> GetPaged([FromQuery] RoleQueryDto query)
         {
             var result = await _roleService.GetPagedAsync(query);
@@ -35,7 +35,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 根据ID获取角色
         /// </summary>
         [HttpGet("{id:int}")]
-        [Authorize(Roles = "SUPER_ADMIN,ADMIN")]
+        [Authorize(Policy = "RoleView")] // RBAC权限控制：需要角色查看权限
         public async Task<IActionResult> GetById(int id)
         {
             var result = await _roleService.GetByIdAsync(id);
@@ -60,7 +60,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 创建角色
         /// </summary>
         [HttpPost]
-        [Authorize(Roles = "SUPER_ADMIN")]
+        [Authorize(Policy = "RoleManage")] // RBAC权限控制：需要角色管理权限
         public async Task<IActionResult> Create([FromBody] CreateRoleDto dto)
         {
             var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
@@ -78,7 +78,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 更新角色
         /// </summary>
         [HttpPut("{id:int}")]
-        [Authorize(Roles = "SUPER_ADMIN")]
+        [Authorize(Policy = "RoleManage")] // RBAC权限控制：需要角色管理权限
         public async Task<IActionResult> Update(int id, [FromBody] UpdateRoleDto dto)
         {
             var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
@@ -96,7 +96,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 删除角色
         /// </summary>
         [HttpDelete("{id:int}")]
-        [Authorize(Roles = "SUPER_ADMIN")]
+        [Authorize(Policy = "RoleDelete")] // RBAC权限控制：需要角色删除权限
         public async Task<IActionResult> Delete(int id)
         {
             var result = await _roleService.DeleteAsync(id);
@@ -111,7 +111,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 分配角色权限
         /// </summary>
         [HttpPost("{id:int}/permissions")]
-        [Authorize(Roles = "SUPER_ADMIN")]
+        [Authorize(Policy = "PermissionManage")] // RBAC权限控制：需要权限管理权限
         public async Task<IActionResult> AssignPermissions(int id, [FromBody] AssignRolePermissionDto dto)
         {
             var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
@@ -129,7 +129,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 获取角色的权限列表
         /// </summary>
         [HttpGet("{id:int}/permissions")]
-        [Authorize(Roles = "SUPER_ADMIN,ADMIN")]
+        [Authorize(Policy = "PermissionView")] // RBAC权限控制：需要权限查看权限
         public async Task<IActionResult> GetRolePermissions(int id)
         {
             var result = await _roleService.GetRolePermissionsAsync(id);
@@ -140,7 +140,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 分配角色用户
         /// </summary>
         [HttpPost("{id:int}/users")]
-        [Authorize(Roles = "SUPER_ADMIN,ADMIN")]
+        [Authorize(Policy = "UserManage")] // RBAC权限控制：需要用户管理权限
         public async Task<IActionResult> AssignUsers(int id, [FromBody] AssignUserRoleDto dto)
         {
             var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
@@ -158,7 +158,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 获取角色的用户列表
         /// </summary>
         [HttpGet("{id:int}/users")]
-        [Authorize(Roles = "SUPER_ADMIN,ADMIN")]
+        [Authorize(Policy = "UserView")] // RBAC权限控制：需要用户查看权限
         public async Task<IActionResult> GetRoleUsers(int id)
         {
             var result = await _roleService.GetRoleUsersAsync(id);

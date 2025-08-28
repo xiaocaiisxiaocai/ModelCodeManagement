@@ -26,6 +26,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// </summary>
         /// <param name="modelType">机型类型，如 SLU-, SLUR- 等</param>
         [HttpGet("by-model/{modelType}")]
+        [Authorize(Policy = "CodeClassificationView")] // RBAC权限控制：需要代码分类查看权限
         public async Task<IActionResult> GetByModelType(string modelType)
         {
             var result = await _codeClassificationService.GetByModelTypeAsync(modelType);
@@ -41,6 +42,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// </summary>
         /// <param name="modelClassificationId">机型分类ID</param>
         [HttpGet("by-model-id/{modelClassificationId}")]
+        [Authorize(Policy = "CodeClassificationView")] // RBAC权限控制：需要代码分类查看权限
         public async Task<IActionResult> GetByModelClassificationId(int modelClassificationId)
         {
             var result = await _codeClassificationService.GetByModelClassificationIdAsync(modelClassificationId);
@@ -56,6 +58,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// </summary>
         /// <param name="id">代码分类ID</param>
         [HttpGet("{id}")]
+        [Authorize(Policy = "CodeClassificationView")] // RBAC权限控制：需要代码分类查看权限
         public async Task<IActionResult> GetById(int id)
         {
             var result = await _codeClassificationService.GetByIdAsync(id);
@@ -75,7 +78,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 例如：创建"1-内层"时，会自动生成SLU-100到SLU-199的编码记录。
         /// </remarks>
         [HttpPost]
-        [Authorize(Policy = "Admin")]
+        [Authorize(Policy = "CodeClassificationManage")] // RBAC权限控制：需要代码分类管理权限
         [AuditLog("CreateCodeClassification", "CodeClassification")]
         public async Task<IActionResult> Create([FromBody] CreateCodeClassificationDto dto)
         {
@@ -93,7 +96,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// <param name="id">代码分类ID</param>
         /// <param name="dto">更新代码分类DTO</param>
         [HttpPut("{id}")]
-        [Authorize(Policy = "Admin")]
+        [Authorize(Policy = "CodeClassificationManage")] // RBAC权限控制：需要代码分类管理权限
         [AuditLog("UpdateCodeClassification", "CodeClassification")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateCodeClassificationDto dto)
         {
@@ -114,7 +117,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 已使用的编码记录将被保留。
         /// </remarks>
         [HttpDelete("{id}")]
-        [Authorize(Policy = "SuperAdmin")]
+        [Authorize(Policy = "CodeClassificationDelete")] // RBAC权限控制：需要代码分类删除权限
         [AuditLog("DeleteCodeClassification", "CodeClassification")]
         public async Task<IActionResult> Delete(int id)
         {

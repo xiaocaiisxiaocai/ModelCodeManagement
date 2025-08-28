@@ -24,7 +24,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 分页查询审计日志
         /// </summary>
         [HttpGet]
-        [Authorize(Roles = "SUPER_ADMIN,ADMIN")]
+        [Authorize(Policy = "AuditLogView")] // RBAC权限控制：需要审计日志查看权限
         public async Task<IActionResult> GetPaged([FromQuery] AuditLogQueryDto query)
         {
             var result = await _auditLogService.GetPagedAsync(query);
@@ -39,7 +39,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 查询用户的审计日志
         /// </summary>
         [HttpGet("user/{userId}")]
-        [Authorize(Roles = "SUPER_ADMIN,ADMIN")]
+        [Authorize(Policy = "AuditLogView")] // RBAC权限控制：需要审计日志查看权限
         public async Task<IActionResult> GetByUser(int userId, [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
         {
             var result = await _auditLogService.GetByUserAsync(userId, startDate, endDate);
@@ -74,7 +74,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 查询实体的审计日志
         /// </summary>
         [HttpGet("entity/{entityType}/{entityId}")]
-        [Authorize(Roles = "SUPER_ADMIN,ADMIN")]
+        [Authorize(Policy = "AuditLogView")] // RBAC权限控制：需要审计日志查看权限
         public async Task<IActionResult> GetByEntity(string entityType, int entityId)
         {
             var result = await _auditLogService.GetByEntityAsync(entityType, entityId);
@@ -89,7 +89,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 清理过期日志
         /// </summary>
         [HttpPost("cleanup")]
-        [Authorize(Roles = "SUPER_ADMIN")]
+        [Authorize(Policy = "AuditLogManage")] // RBAC权限控制：需要审计日志管理权限
         public async Task<IActionResult> CleanupOldLogs([FromQuery] int daysToKeep = 90)
         {
             var result = await _auditLogService.CleanupOldLogsAsync(daysToKeep);

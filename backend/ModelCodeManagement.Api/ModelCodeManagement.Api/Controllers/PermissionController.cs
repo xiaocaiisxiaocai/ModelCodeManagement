@@ -24,6 +24,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 分页获取权限列表
         /// </summary>
         [HttpGet]
+        [Authorize(Policy = "PermissionView")] // RBAC权限控制：需要权限查看权限
         public async Task<IActionResult> GetPaged([FromQuery] PermissionQueryDto query)
         {
             var result = await _permissionService.GetPagedAsync(query);
@@ -34,6 +35,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 根据ID获取权限
         /// </summary>
         [HttpGet("{id:int}")]
+        [Authorize(Policy = "PermissionView")] // RBAC权限控制：需要权限查看权限
         public async Task<IActionResult> GetById(int id)
         {
             var result = await _permissionService.GetByIdAsync(id);
@@ -68,7 +70,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 创建权限
         /// </summary>
         [HttpPost]
-        [Authorize(Roles = "SUPER_ADMIN")]
+        [Authorize(Policy = "PermissionManage")] // RBAC权限控制：需要权限管理权限
         public async Task<IActionResult> Create([FromBody] CreatePermissionDto dto)
         {
             var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
@@ -86,7 +88,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 更新权限
         /// </summary>
         [HttpPut("{id:int}")]
-        [Authorize(Roles = "SUPER_ADMIN")]
+        [Authorize(Policy = "PermissionManage")] // RBAC权限控制：需要权限管理权限
         public async Task<IActionResult> Update(int id, [FromBody] UpdatePermissionDto dto)
         {
             var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
@@ -104,7 +106,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 删除权限
         /// </summary>
         [HttpDelete("{id:int}")]
-        [Authorize(Roles = "SUPER_ADMIN")]
+        [Authorize(Policy = "PermissionManage")] // RBAC权限控制：需要权限管理权限
         public async Task<IActionResult> Delete(int id)
         {
             var result = await _permissionService.DeleteAsync(id);
@@ -119,7 +121,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 移动权限
         /// </summary>
         [HttpPatch("{id:int}/move")]
-        [Authorize(Roles = "SUPER_ADMIN")]
+        [Authorize(Policy = "PermissionManage")] // RBAC权限控制：需要权限管理权限
         public async Task<IActionResult> Move(int id, [FromBody] MovePermissionDto dto)
         {
             var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);

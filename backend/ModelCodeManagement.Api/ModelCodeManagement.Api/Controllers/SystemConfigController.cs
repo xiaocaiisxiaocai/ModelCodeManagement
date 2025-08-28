@@ -26,7 +26,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// <param name="key">配置项键名</param>
         /// <param name="value">配置项值</param>
         [HttpPost("{key}")]
-        [Authorize(Policy = "SuperAdmin")]
+        [Authorize(Policy = "SystemConfig")] // RBAC权限控制：需要系统配置权限
         public async Task<IActionResult> SetConfig(string key, [FromBody] string value)
         {
             var result = await _systemConfigService.SetConfigValueAsync(key, value);

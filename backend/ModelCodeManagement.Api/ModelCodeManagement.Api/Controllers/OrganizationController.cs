@@ -24,6 +24,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 分页获取组织架构列表
         /// </summary>
         [HttpGet]
+        [Authorize(Policy = "OrganizationView")] // RBAC权限控制：需要组织架构查看权限
         public async Task<IActionResult> GetPaged([FromQuery] OrganizationQueryDto query)
         {
             var result = await _organizationService.GetPagedAsync(query);
@@ -34,6 +35,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 根据ID获取组织架构
         /// </summary>
         [HttpGet("{id:int}")]
+        [Authorize(Policy = "OrganizationView")] // RBAC权限控制：需要组织架构查看权限
         public async Task<IActionResult> GetById(int id)
         {
             var result = await _organizationService.GetByIdAsync(id);
@@ -68,7 +70,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 创建组织架构
         /// </summary>
         [HttpPost]
-        [Authorize(Roles = "SUPER_ADMIN,ADMIN")]
+        [Authorize(Policy = "OrganizationManage")] // RBAC权限控制：需要组织架构管理权限
         public async Task<IActionResult> Create([FromBody] CreateOrganizationDto dto)
         {
             var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
@@ -86,7 +88,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 更新组织架构
         /// </summary>
         [HttpPut("{id:int}")]
-        [Authorize(Roles = "SUPER_ADMIN,ADMIN")]
+        [Authorize(Policy = "OrganizationManage")] // RBAC权限控制：需要组织架构管理权限
         public async Task<IActionResult> Update(int id, [FromBody] UpdateOrganizationDto dto)
         {
             var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
@@ -104,7 +106,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 删除组织架构
         /// </summary>
         [HttpDelete("{id:int}")]
-        [Authorize(Roles = "SUPER_ADMIN,ADMIN")]
+        [Authorize(Policy = "OrganizationManage")] // RBAC权限控制：需要组织架构管理权限
         public async Task<IActionResult> Delete(int id)
         {
             var result = await _organizationService.DeleteAsync(id);
@@ -119,7 +121,7 @@ namespace ModelCodeManagement.Api.Controllers
         /// 移动组织架构
         /// </summary>
         [HttpPatch("{id:int}/move")]
-        [Authorize(Roles = "SUPER_ADMIN,ADMIN")]
+        [Authorize(Policy = "OrganizationManage")] // RBAC权限控制：需要组织架构管理权限
         public async Task<IActionResult> Move(int id, [FromBody] MoveOrganizationDto dto)
         {
             var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);

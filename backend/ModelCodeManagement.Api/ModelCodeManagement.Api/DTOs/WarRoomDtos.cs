@@ -29,7 +29,7 @@ namespace ModelCodeManagement.Api.DTOs
     }
 
     /// <summary>
-    /// 年度新增机型数据DTO
+    /// 年度新增机型数据DTO - 动态支持所有机型类型
     /// </summary>
     public class YearlyNewModelsDto
     {
@@ -39,29 +39,21 @@ namespace ModelCodeManagement.Api.DTOs
         public int Year { get; set; }
 
         /// <summary>
-        /// SLU机型数量
+        /// 新增机型类型数量（总数）
         /// </summary>
-        public int SLU { get; set; }
+        public int NewModelCount { get; set; }
 
         /// <summary>
-        /// SLUR机型数量
+        /// 该年份出现的机型类型列表
         /// </summary>
-        public int SLUR { get; set; }
+        public List<string> ModelTypes { get; set; } = new();
 
         /// <summary>
-        /// SB机型数量
+        /// 机型类型详细统计 - 动态字典结构
+        /// Key: 机型类型（如 "SLU", "SLUR"）
+        /// Value: 1表示该年出现，0表示未出现
         /// </summary>
-        public int SB { get; set; }
-
-        /// <summary>
-        /// ST机型数量
-        /// </summary>
-        public int ST { get; set; }
-
-        /// <summary>
-        /// AC机型数量
-        /// </summary>
-        public int AC { get; set; }
+        public Dictionary<string, int> ModelTypeStats { get; set; } = new();
     }
 
     /// <summary>

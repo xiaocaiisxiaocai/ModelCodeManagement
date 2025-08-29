@@ -4,6 +4,28 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 # 机型编码管理系统
 
+优先使用中文回复  
+前端端口必须使用5173，后端端口必须使用5250
+
+## 快速启动指南
+
+### 开发环境启动
+```bash
+# 启动后端 (必须先启动)
+cd backend/ModelCodeManagement.Api/ModelCodeManagement.Api/
+dotnet watch run  # 运行在 http://localhost:5250
+
+# 启动前端 (新终端)
+cd frontend/
+npm run dev  # 运行在 http://localhost:5173
+```
+
+### 系统验证
+- **Swagger API**: http://localhost:5250/swagger
+- **前端应用**: http://localhost:5173  
+- **默认管理员**: admin/admin123
+
+
 > **企业级制造业编码管理平台** - 专为PCB/FPC制造企业设计的智能编码管理系统，支持灵活的2层/3层编码结构和完整的RBAC权限控制
 
 ## 变更记录 (Changelog)
@@ -29,7 +51,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## 架构总览
 
 ### 技术栈
-- **前端**: React 19 + TypeScript + Carbon Design System + UnoCSS + Vite
+- **前端**: React 19 + TypeScript + Carbon Design System + UnoCSS + Vite 7
 - **后端**: .NET 8 Web API + Entity Framework Core 9.0 + MySQL 8.0  
 - **认证**: JWT + Refresh Token + RBAC权限管理
 - **部署**: Windows Server + IIS + 内网环境
@@ -166,27 +188,44 @@ graph TD
 - **MySQL**: 8.0+ (数据库)
 - **IDE**: VS Code / Visual Studio 2022
 
-### 前端开发
+### 前端开发 (React 19 + Vite 7)
 ```bash
 cd frontend                    # 进入前端目录
 npm install                   # 安装依赖
 npm run dev                   # 本地开发 (http://localhost:5173)
 npm run dev:network          # 局域网访问 (http://0.0.0.0:5173)
-npm run lint                 # ESLint检查
 npm run build                # 生产构建
-npm run preview              # 预览构建结果
+npm run build:production     # 生产优化构建
+npm run lint                 # ESLint检查
+npm run preview              # 预览构建结果 (http://localhost:4173)
+npm run preview:network      # 局域网预览
+npm run serve                # 服务静态文件
 ```
 
-### 后端开发
+### 后端开发 (.NET 8 + EF Core 9)
 ```bash
 cd backend/ModelCodeManagement.Api/ModelCodeManagement.Api/  # 进入后端目录
 dotnet restore               # 还原NuGet包
 dotnet watch run            # 热重载开发 (http://localhost:5250)
 dotnet build                # 编译检查
 dotnet clean                # 清理输出
+dotnet run                  # 直接运行
 
 # 故障排除 (程序集冲突时)
 dotnet clean && dotnet build && dotnet run
+
+# Entity Framework 命令
+dotnet ef migrations add InitialCreate    # 创建迁移
+dotnet ef database update                # 应用迁移
+dotnet ef database drop                  # 删除数据库 (开发环境)
+dotnet ef migrations remove              # 删除最新迁移
+
+# 调试和测试
+dotnet test                              # 运行单元测试 (如果存在)
+dotnet run --environment Development     # 指定开发环境运行
+
+# 生产环境部署
+dotnet publish -c Release -o ./publish  # 发布到生产环境
 ```
 
 ### 重要调试端点
@@ -260,7 +299,7 @@ curl -X POST http://localhost:5250/api/v1/auth/login \
 - **ORM**: Entity Framework Core 9.0 (已从SqlSugar升级)
 - **提供商**: Pomelo.EntityFrameworkCore.MySql 9.0 (MySQL优化)
 - **自动建表**: Program.cs启动时EnsureCreated自动创建表结构
-- **开发环境**: 每次启动删除重建数据库 (EnsureDeleted + EnsureCreated)
+- **开发环境**: 每次启动删除重建数据库 (EnsureDeleted + EnsureCreated)  
 - **生产环境**: 建议使用Migration替代EnsureCreated
 - **初始数据**: SeedDataAsync方法自动初始化管理员、组织架构、权限配置
 - **软删除**: IsDeleted字段，查询时GlobalQueryFilters自动过滤
@@ -286,7 +325,7 @@ curl -X POST http://localhost:5250/api/v1/auth/login \
 - **ORM**: Entity Framework Core 9.0 + Pomelo.EntityFrameworkCore.MySql
 - **建表方式**: Code First模式，程序启动时自动创建
 - **命名规范**: 表名复数形式 (Users, ProductTypes)，字段PascalCase (CreatedAt, IsActive)
-- **软删除机制**: IsDeleted字段统一处理，查询时自动过滤
+- **软删除机制**: IsDeleted字段统一处理，查询时GlobalQueryFilters自动过滤
 - **审计字段**: CreatedAt, UpdatedAt, CreatedBy, UpdatedBy 统一审计
 - **关系映射**: Include/ThenInclude 加载关联数据，避免N+1查询
 
@@ -294,16 +333,41 @@ curl -X POST http://localhost:5250/api/v1/auth/login \
 
 ### API测试
 - **工具**: VS Code + REST Client扩展
-- **测试文件**: `ModelCodeManagement.Api.http`
+- **测试文件**: `backend/ModelCodeManagement.Api/ModelCodeManagement.Api/ModelCodeManagement.Api.http`
 - **覆盖范围**: 完整的CRUD操作和认证流程
+- **使用方式**: 在VS Code中安装REST Client扩展，直接运行HTTP请求
 
 ### 前端测试
 - **状态**: 待实现
-- **建议**: Jest + React Testing Library + Cypress
+- **建议技术栈**: 
+  ```bash
+  npm install -D @testing-library/react @testing-library/jest-dom
+  npm install -D @testing-library/user-event vitest jsdom
+  npm install -D @playwright/test  # E2E测试
+  ```
+- **推荐测试命令**:
+  ```bash
+  npm run test          # 单元测试
+  npm run test:e2e      # 端到端测试
+  npm run test:coverage # 测试覆盖率
+  ```
 
 ### 后端测试
 - **状态**: 待实现  
-- **建议**: xUnit + Moq + Integration Tests
+- **建议技术栈**:
+  ```bash
+  dotnet add package xunit
+  dotnet add package xunit.runner.visualstudio
+  dotnet add package Microsoft.AspNetCore.Mvc.Testing
+  dotnet add package Moq
+  ```
+- **推荐测试命令**:
+  ```bash
+  dotnet test                    # 运行所有测试
+  dotnet test --collect:"XPlat Code Coverage"  # 生成覆盖率报告
+  dotnet test --filter Category=Unit          # 运行单元测试
+  dotnet test --filter Category=Integration   # 运行集成测试
+  ```
 
 ## 编码规范
 
@@ -387,8 +451,9 @@ curl -X POST http://localhost:5250/api/v1/auth/login \
 ### 关键文件位置
 ```
 # 🔥 核心配置文件
-backend/ModelCodeManagement.Api/ModelCodeManagement.Api/Program.cs    # 服务启动配置
-backend/ModelCodeManagement.Api/ModelCodeManagement.Api/appsettings.json # 系统配置
+backend/ModelCodeManagement.Api/ModelCodeManagement.Api/Program.cs           # 服务启动配置
+backend/ModelCodeManagement.Api/ModelCodeManagement.Api/appsettings.json    # 系统配置
+backend/ModelCodeManagement.Api/ModelCodeManagement.Api/Data/ApplicationDbContext.cs # EF Core数据库上下文
 frontend/src/services/unifiedService.ts    # 前端API统一入口
 frontend/src/mock/interfaces.ts           # 前端类型定义
 frontend/package.json                     # 前端依赖和脚本
@@ -398,6 +463,10 @@ backend/.../Services/Impl/AuthenticationService.cs # JWT认证服务
 backend/.../Extensions/ServiceExtensions.cs        # 权限策略配置
 frontend/src/contexts/AuthContext.tsx             # 前端认证状态
 frontend/src/components/auth/PermissionGate.tsx   # 权限组件
+
+# 📋 开发工具
+backend/ModelCodeManagement.Api/ModelCodeManagement.Api/ModelCodeManagement.Api.http # API测试文件
+frontend/vite.config.ts                           # Vite构建配置
 ```
 
 ## 初始化数据
@@ -426,7 +495,12 @@ frontend/src/components/auth/PermissionGate.tsx   # 权限组件
 **原因**: dotnet watch热重载过程中程序集状态不一致
 **解决方案**:
 ```bash
+# 标准清理重构建
 dotnet clean && dotnet build && dotnet run
+
+# 或删除bin/obj目录后重新构建
+rm -rf bin obj
+dotnet restore && dotnet build
 ```
 
 ### Q3: 权限验证失败 (403 Forbidden)
@@ -457,6 +531,32 @@ dotnet clean && dotnet build && dotnet run
 1. 开发环境: 系统会自动重建数据库
 2. 生产环境: 使用 `dotnet ef migrations add` 和 `dotnet ef database update`
 3. 检查ApplicationDbContext中的实体配置
+
+## 开发最佳实践
+
+### 新功能开发流程
+1. **后端开发**: Entity → DTO → Service → Controller → 权限配置
+2. **前端开发**: 类型定义 → 统一服务调用 → 页面组件 → 路由配置
+3. **测试验证**: API测试 → 功能测试 → 权限测试
+
+### 代码提交规范
+```bash
+# 提交前检查
+npm run lint        # 前端代码检查
+dotnet build        # 后端编译检查
+
+# 提交信息格式
+feat: 添加产品类型管理功能
+fix: 修复权限验证问题
+docs: 更新API文档
+refactor: 重构用户服务层
+```
+
+### 调试技巧
+- **API调试**: 使用 `ModelCodeManagement.Api.http` 文件进行接口测试
+- **数据库调试**: 检查 EF Core 生成的 SQL 日志
+- **权限调试**: 解析 JWT Token 中的 Claims 信息
+- **前端调试**: Chrome DevTools Network 面板查看 API 调用
 
 ## 扩展建议
 

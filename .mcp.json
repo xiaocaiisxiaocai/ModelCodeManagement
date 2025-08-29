@@ -13,6 +13,15 @@
         "-y",
         "@modelcontextprotocol/server-sequential-thinking"
       ]
+    },
+    "spec-workflow": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "@pimzino/spec-workflow-mcp@latest",
+        "D:\\Code\\机型编码管理系统"
+      ],
+      "env": {}
     }
   }
 }

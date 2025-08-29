@@ -245,31 +245,48 @@ namespace ModelCodeManagement.Api.Services.Impl
         }
 
         /// <summary>
-        /// 获取年度新增机型数据
+        /// 获取年度新增机型数据 - 统计每年首次出现的机型类型数量
         /// </summary>
         private async Task<List<YearlyNewModelsDto>> GetYearlyNewModelsDataAsync(int startYear, int endYear)
         {
             var result = new List<YearlyNewModelsDto>();
+            var allSeenModelTypes = new HashSet<string>(); // 记录所有已出现过的机型类型
 
             for (int year = startYear; year <= endYear; year++)
             {
                 var yearStart = new DateTime(year, 1, 1);
                 var yearEnd = new DateTime(year, 12, 31, 23, 59, 59);
 
-                var yearlyStats = await _context.CodeUsageEntries
+                // 统计该年份中出现的机型类型种类（去重）
+                var yearModelTypes = await _context.CodeUsageEntries
                     .Where(x => !x.IsDeleted && x.CreatedAt >= yearStart && x.CreatedAt <= yearEnd)
-                    .GroupBy(x => x.ModelType)
-                    .Select(g => new { ModelType = g.Key, Count = g.Count() })
+                    .Select(x => x.ModelType)
+                    .Distinct()
                     .ToListAsync();
 
+                // 过滤出真正"新增"的机型类型（首次出现的）
+                var newModelTypes = yearModelTypes.Where(modelType => !allSeenModelTypes.Contains(modelType)).ToList();
+
+                // 将本年度出现的所有机型类型加入已见过的集合
+                foreach (var modelType in yearModelTypes)
+                {
+                    allSeenModelTypes.Add(modelType);
+                }
+
+                // 构建机型类型统计字典 - 只包含新增的
+                var modelTypeStats = new Dictionary<string, int>();
+                foreach (var modelType in newModelTypes)
+                {
+                    modelTypeStats[modelType] = 1; // 1表示该年份新增该机型类型
+                }
+
+                // 动态构建年度数据
                 var yearlyData = new YearlyNewModelsDto
                 {
                     Year = year,
-                    SLU = yearlyStats.FirstOrDefault(x => x.ModelType == "SLU")?.Count ?? 0,
-                    SLUR = yearlyStats.FirstOrDefault(x => x.ModelType == "SLUR")?.Count ?? 0,
-                    SB = yearlyStats.FirstOrDefault(x => x.ModelType == "SB")?.Count ?? 0,
-                    ST = yearlyStats.FirstOrDefault(x => x.ModelType == "ST")?.Count ?? 0,
-                    AC = yearlyStats.FirstOrDefault(x => x.ModelType == "AC")?.Count ?? 0
+                    NewModelCount = newModelTypes.Count, // 真正新增的机型类型数量
+                    ModelTypes = newModelTypes, // 新增的机型类型列表
+                    ModelTypeStats = modelTypeStats // 新增机型类型详细统计
                 };
 
                 result.Add(yearlyData);

@@ -117,7 +117,7 @@ namespace ModelCodeManagement.Api.Controllers
             Console.WriteLine($"✅ 服务返回结果: Success={result.Success}, Message={result.Message}");
             if (!result.Success)
             {
-                Console.WriteLine($"❌ 错误详情: {result.Error}");
+                Console.WriteLine($"❌ 错误详情: {result.Message}");
             }
             
             if (result.Success)

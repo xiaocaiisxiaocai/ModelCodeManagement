@@ -341,7 +341,7 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({ children, title, subtitle }
         </header>
         
         {/* 页面内容 */}
-        <div className="flex-1 min-h-0 p-3 lg:p-6 overflow-hidden">
+        <div className={`flex-1 min-h-0 overflow-hidden ${title === '战情中心' ? 'p-1' : 'p-3 lg:p-6'}`}>
           <div className="h-full overflow-auto">{children}</div>
         </div>
       </main>

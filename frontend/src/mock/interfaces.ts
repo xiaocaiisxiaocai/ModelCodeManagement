@@ -88,12 +88,17 @@ export interface ModelClassification {
   }
 
   /**
-   * @description 年度新增机型数据
+   * @description 年度新增机型数据 - 动态支持所有机型类型
    */
   export interface YearlyNewModelsData {
-    year: string; // 年份
-    PCB: number; // PCB产品类型的新增机型数量
-    FPC: number; // FPC产品类型的新增机型数量
+    year?: number; // 年份 (小写，前端兼容)
+    Year?: number; // 年份 (大写，后端格式)
+    newModelCount?: number; // 新增机型类型数量（总数，小写兼容）
+    NewModelCount?: number; // 新增机型类型数量（总数，大写后端格式）
+    modelTypes?: string[]; // 该年份出现的机型类型列表 (小写兼容)
+    ModelTypes?: string[]; // 该年份出现的机型类型列表 (大写后端格式)
+    modelTypeStats?: Record<string, number>; // 机型类型详细统计（Key: 机型类型，Value: 1表示出现，0表示未出现）
+    ModelTypeStats?: Record<string, number>; // 机型类型详细统计（大写后端格式）
   }
 
   /**

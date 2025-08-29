@@ -992,18 +992,44 @@ export class UnifiedWarRoomService extends BaseDataService<WarRoomData> {
 
   async getWarRoomData(): Promise<DataResponse<WarRoomData>> {
     try {
-      const data = this.dataManager.getWarRoomData();
-      return this.success(data, '成功获取战情中心数据');
+      const response = await httpClient.post<any>('/v1/war-room/data', {
+        timePeriod: 'all_time',
+        startDate: '2020-01-01',
+        endDate: '2025-12-31'
+      });
+      
+      if (response.success && response.data) {
+        return {
+          success: true,
+          data: response.data,
+          message: '成功获取战情中心数据'
+        };
+      }
+      
+      return response;
     } catch (error) {
       ErrorHandler.handleAsyncError(error, 'WarRoomService.getWarRoomData');
       return { success: false, error: `获取战情中心数据失败: ${error}` };
     }
   }
 
-  async getYearlyNewModels(): Promise<DataResponse<YearlyNewModelsData[]>> {
+  async getYearlyNewModels(startYear?: number, endYear?: number): Promise<DataResponse<YearlyNewModelsData[]>> {
     try {
-      const warRoomData = this.dataManager.getWarRoomData();
-      return this.success(warRoomData.yearlyNewModels, '成功获取年度新增机型数据');
+      const currentYear = new Date().getFullYear();
+      const defaultStartYear = startYear || (currentYear - 4); // 默认最近5年
+      const defaultEndYear = endYear || currentYear;
+      
+      const response = await httpClient.get<any>(`/v1/war-room/yearly-new-models?startYear=${defaultStartYear}&endYear=${defaultEndYear}`);
+      
+      if (response.success && response.data) {
+        return {
+          success: true,
+          data: response.data,
+          message: '成功获取年度新增机型数据'
+        };
+      }
+      
+      return response;
     } catch (error) {
       ErrorHandler.handleAsyncError(error, 'WarRoomService.getYearlyNewModels');
       return { success: false, error: `获取年度新增机型数据失败: ${error}` };
@@ -1012,8 +1038,17 @@ export class UnifiedWarRoomService extends BaseDataService<WarRoomData> {
 
   async getPlanningUsage(): Promise<DataResponse<PlanningUsageData[]>> {
     try {
-      const warRoomData = this.dataManager.getWarRoomData();
-      return this.success(warRoomData.planningUsage, '成功获取规划占用数据');
+      const response = await httpClient.get<any>('/v1/war-room/planning-usage?startDate=2020-01-01&endDate=2025-12-31');
+      
+      if (response.success && response.data) {
+        return {
+          success: true,
+          data: response.data,
+          message: '成功获取规划占用数据'
+        };
+      }
+      
+      return response;
     } catch (error) {
       ErrorHandler.handleAsyncError(error, 'WarRoomService.getPlanningUsage');
       return { success: false, error: `获取规划占用数据失败: ${error}` };
@@ -1022,24 +1057,42 @@ export class UnifiedWarRoomService extends BaseDataService<WarRoomData> {
 
   async getModelCodeRemaining(): Promise<DataResponse<ModelCodeRemainingData[]>> {
     try {
-      const warRoomData = this.dataManager.getWarRoomData();
-      return this.success(warRoomData.modelCodeRemaining, '成功获取机型码余量数据');
+      const response = await httpClient.get<any>('/v1/war-room/model-code-remaining');
+      
+      if (response.success && response.data) {
+        return {
+          success: true,
+          data: response.data,
+          message: '成功获取机型码余量数据'
+        };
+      }
+      
+      return response;
     } catch (error) {
       ErrorHandler.handleAsyncError(error, 'WarRoomService.getModelCodeRemaining');
       return { success: false, error: `获取机型码余量数据失败: ${error}` };
     }
   }
 
-  async getNewCodeDataByModel(modelType: string): Promise<DataResponse<ModelNewCodeData>> {
+  async getNewCodeDataByModel(modelType: string, pageIndex: number = 1, pageSize: number = 10): Promise<DataResponse<ModelNewCodeData>> {
     try {
-      const warRoomData = this.dataManager.getWarRoomData();
-      const modelData = warRoomData.newCodeData[modelType as keyof typeof warRoomData.newCodeData];
+      const response = await httpClient.post<any>('/v1/war-room/new-code-data-by-model', {
+        modelType,
+        pageIndex,
+        pageSize,
+        startDate: null,
+        endDate: null
+      });
       
-      if (!modelData) {
-        return { success: false, error: `不支持的机型类型: ${modelType}` };
+      if (response.success && response.data) {
+        return {
+          success: true,
+          data: response.data,
+          message: `成功获取${modelType}机型新增代码数据`
+        };
       }
-
-      return this.success(modelData, `成功获取${modelType}机型新增代码数据`);
+      
+      return response;
     } catch (error) {
       ErrorHandler.handleAsyncError(error, 'WarRoomService.getNewCodeDataByModel', { modelType });
       return { success: false, error: `获取新增代码数据失败: ${error}` };
@@ -1047,145 +1100,37 @@ export class UnifiedWarRoomService extends BaseDataService<WarRoomData> {
   }
 
   /**
-   * 动态生成新增代码统计数据 - 从原始代码使用清单计算
+   * 获取动态新增代码数据 - 使用API
    */
   async getDynamicNewCodeData(): Promise<DataResponse<Record<string, ModelNewCodeData>>> {
     try {
-      const allCodeUsage = this.dataManager.getCodeUsageList();
-      const modelClassifications = this.dataManager.getModelClassifications();
+      const response = await httpClient.get<any>('/v1/war-room/dynamic-new-code-data');
       
-      // 获取所有机型类型
-      const modelTypes = [...new Set(modelClassifications.map(mc => mc.type.replace(/-$/, '')))];
-      
-      const dynamicData: Record<string, ModelNewCodeData> = {};
-      
-      for (const modelType of modelTypes) {
-        // 筛选该机型的所有代码使用记录
-        const modelCodes = allCodeUsage.filter(entry => 
-          entry.model.startsWith(modelType + '-') && !entry.isDeleted
-        );
-        
-        // 按创建日期分组统计
-        const weekData: any[] = [];
-        const monthData: any[] = [];
-        const yearData: any[] = [];
-        
-        // 生成周数据（最近4周）
-        for (let week = 1; week <= 4; week++) {
-          const weekCodes = modelCodes.filter(entry => {
-            // 简单模拟：根据创建日期分布到不同周
-            const date = new Date(entry.creationDate);
-            const weekOfMonth = Math.ceil(date.getDate() / 7);
-            return weekOfMonth === week;
-          }).map(entry => entry.model);
-          
-          weekData.push({
-            date: `第${week}周`,
-            count: weekCodes.length,
-            codeId: `${modelType.toLowerCase()}-w${week}`,
-            codes: weekCodes.slice(0, 10) // 限制显示数量
-          });
-        }
-        
-        // 生成月数据（最近3个月）
-        const months = ['1月', '2月', '3月'];
-        for (let month = 0; month < 3; month++) {
-          const monthCodes = modelCodes.filter(entry => {
-            const date = new Date(entry.creationDate);
-            return date.getMonth() === month;
-          }).map(entry => entry.model);
-          
-          monthData.push({
-            date: months[month],
-            count: monthCodes.length,
-            codeId: `${modelType.toLowerCase()}-m${month + 1}`,
-            codes: monthCodes.slice(0, 15) // 限制显示数量
-          });
-        }
-        
-        // 生成年数据（最近3年）
-        const years = ['2022', '2023', '2024'];
-        for (const year of years) {
-          const yearCodes = modelCodes.filter(entry => {
-            const date = new Date(entry.creationDate);
-            return date.getFullYear().toString() === year;
-          }).map(entry => entry.model);
-          
-          yearData.push({
-            date: year,
-            count: yearCodes.length,
-            codeId: `${modelType.toLowerCase()}-y${year}`,
-            codes: yearCodes.slice(0, 20) // 限制显示数量
-          });
-        }
-        
-        dynamicData[modelType] = {
-          week: weekData,
-          month: monthData,
-          year: yearData
+      if (response.success && response.data) {
+        return {
+          success: true,
+          data: response.data,
+          message: '成功获取动态新增代码数据'
         };
       }
       
-      return this.success(dynamicData, '成功生成动态新增代码统计数据');
+      return response;
     } catch (error) {
       ErrorHandler.handleAsyncError(error, 'WarRoomService.getDynamicNewCodeData');
-      return { success: false, error: `生成动态统计数据失败: ${error}` };
+      return { success: false, error: `获取动态新增代码数据失败: ${error}` };
     }
   }
 
   /**
-   * 动态计算机型码余量数据
+   * 获取动态机型码余量数据 - 使用API
    */
   async getDynamicModelCodeRemaining(): Promise<DataResponse<any[]>> {
     try {
-      const allCodeUsage = this.dataManager.getCodeUsageList();
-      const modelClassifications = this.dataManager.getModelClassifications();
-      const codeClassifications = this.dataManager.getCodeClassifications();
-      
-      // 获取所有机型类型
-      const modelTypes = [...new Set(modelClassifications.map(mc => mc.type.replace(/-$/, '')))];
-      
-      const remainingData = modelTypes.map(modelType => {
-        // 获取该机型的机型分类配置
-        const modelClassification = modelClassifications.find(mc => 
-          mc.type.replace(/-$/, '') === modelType
-        );
-        
-        const totalCodes = allCodeUsage.filter(entry => entry.model.startsWith(modelType + '-'));
-        // 已使用的代码：未删除且有实际产品名称的代码
-        const usedCodes = totalCodes.filter(entry => 
-          !entry.isDeleted && entry.productName && entry.productName.trim() !== ''
-        );
-        
-        let total: number;
-        let usageRate: number;
-        
-        if (modelClassification?.hasCodeClassification === false) {
-          // 2层结构：总数就是实际代码数，使用率100%
-          total = totalCodes.length;
-          usageRate = 100;
-        } else {
-          // 3层结构：总数 = 代码分类数量 × 100（每个分类00-99，共100个）
-          const codeClassificationCount = codeClassifications.filter(cc => 
-            cc.modelType === modelClassification?.type
-          ).length;
-          total = codeClassificationCount * 100;
-          usageRate = total > 0 ? (usedCodes.length / total * 100) : 0;
-        }
-        
-        return {
-          type: modelType,
-          total,
-          used: usedCodes.length,
-          remaining: Math.max(0, total - usedCodes.length),
-          usageRate: Math.round(usageRate * 10) / 10 // 保留一位小数
-        };
-      });
-      
-      return this.success(remainingData, '成功计算机型码余量数据');
+      // 直接使用getModelCodeRemaining方法，它已经被修改为调用API
+      return await this.getModelCodeRemaining();
     } catch (error) {
       ErrorHandler.handleAsyncError(error, 'WarRoomService.getDynamicModelCodeRemaining');
-      return { success: false, error: `计算机型码余量失败: ${error}` };
+      return { success: false, error: `获取机型码余量失败: ${error}` };
     }
   }
 }

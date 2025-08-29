@@ -520,6 +520,87 @@ static async Task InitializeRbacDataAsync(ApplicationDbContext dbContext, bool i
         await dbContext.SaveChangesAsync();
         Console.WriteLine("✅初始数据字典已创建(包含客户、厂区带关联、品名、占用类型等完整数据)");
     }
+    
+    // 初始化产品类型测试数据
+    if (!await dbContext.ProductTypes.AnyAsync())
+    {
+        var productTypes = new[]
+        {
+            new ProductType { Code = "PCB", CreatedAt = DateTime.Now },
+            new ProductType { Code = "FPC", CreatedAt = DateTime.Now },
+            new ProductType { Code = "HDI", CreatedAt = DateTime.Now }
+        };
+        
+        dbContext.ProductTypes.AddRange(productTypes);
+        await dbContext.SaveChangesAsync();
+        Console.WriteLine("✅产品类型测试数据已创建"); // 触发重新编译
+    }
+    
+    // 初始化机型分类测试数据
+    if (!await dbContext.ModelClassifications.AnyAsync())
+    {
+        var pcbProductType = await dbContext.ProductTypes.FirstOrDefaultAsync(pt => pt.Code == "PCB");
+        if (pcbProductType != null)
+        {
+            var modelClassifications = new[]
+            {
+                new ModelClassification { Type = "SLU", ProductTypeId = pcbProductType.Id, HasCodeClassification = true, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now },
+                new ModelClassification { Type = "SLUR", ProductTypeId = pcbProductType.Id, HasCodeClassification = true, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now },
+                new ModelClassification { Type = "SB", ProductTypeId = pcbProductType.Id, HasCodeClassification = true, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now },
+                new ModelClassification { Type = "ST", ProductTypeId = pcbProductType.Id, HasCodeClassification = true, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now },
+                new ModelClassification { Type = "AC", ProductTypeId = pcbProductType.Id, HasCodeClassification = false, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now }
+            };
+            
+            dbContext.ModelClassifications.AddRange(modelClassifications);
+            await dbContext.SaveChangesAsync();
+            Console.WriteLine("✅机型分类测试数据已创建");
+        }
+    }
+    
+    // 初始化编码使用记录测试数据（用于战情中心统计）
+    if (!await dbContext.CodeUsageEntries.AnyAsync())
+    {
+        var baseTime = new DateTime(2022, 1, 1);
+        var codeUsageEntries = new List<CodeUsageEntry>();
+        
+        // 2022年数据：SLU和SLUR首次出现
+        codeUsageEntries.AddRange(new[]
+        {
+            new CodeUsageEntry { ModelType = "SLU", Model = "SLU-100", ActualNumber = "SLU-100", ProductName = "单层内层板A", OccupancyType = "PLANNING", Builder = "张三", CreatedAt = baseTime.AddDays(10), UpdatedAt = baseTime.AddDays(10) },
+            new CodeUsageEntry { ModelType = "SLU", Model = "SLU-101", ActualNumber = "SLU-101", ProductName = "单层内层板B", OccupancyType = "WORK_ORDER", Builder = "李四", CreatedAt = baseTime.AddDays(20), UpdatedAt = baseTime.AddDays(20) },
+            new CodeUsageEntry { ModelType = "SLUR", Model = "SLUR-100", ActualNumber = "SLUR-100", ProductName = "单层内层补强板A", OccupancyType = "PLANNING", Builder = "王五", CreatedAt = baseTime.AddDays(30), UpdatedAt = baseTime.AddDays(30) },
+            new CodeUsageEntry { ModelType = "SLUR", Model = "SLUR-101", ActualNumber = "SLUR-101", ProductName = "单层内层补强板B", OccupancyType = "WORK_ORDER", Builder = "赵六", CreatedAt = baseTime.AddDays(40), UpdatedAt = baseTime.AddDays(40) }
+        });
+        
+        // 2023年数据：SB首次出现，SLU和SLUR继续使用
+        var time2023 = new DateTime(2023, 1, 1);
+        codeUsageEntries.AddRange(new[]
+        {
+            new CodeUsageEntry { ModelType = "SB", Model = "SB-100", ActualNumber = "SB-100", ProductName = "薄板A", OccupancyType = "PLANNING", Builder = "孙七", CreatedAt = time2023.AddDays(15), UpdatedAt = time2023.AddDays(15) },
+            new CodeUsageEntry { ModelType = "SLU", Model = "SLU-102", ActualNumber = "SLU-102", ProductName = "单层内层板C", OccupancyType = "WORK_ORDER", Builder = "周八", CreatedAt = time2023.AddDays(25), UpdatedAt = time2023.AddDays(25) },
+            new CodeUsageEntry { ModelType = "SLUR", Model = "SLUR-102", ActualNumber = "SLUR-102", ProductName = "单层内层补强板C", OccupancyType = "PAUSE", Builder = "吴九", CreatedAt = time2023.AddDays(35), UpdatedAt = time2023.AddDays(35) }
+        });
+        
+        // 2024年数据：ST首次出现
+        var time2024 = new DateTime(2024, 1, 1);
+        codeUsageEntries.AddRange(new[]
+        {
+            new CodeUsageEntry { ModelType = "ST", Model = "ST-100", ActualNumber = "ST-100", ProductName = "载盘A", OccupancyType = "PLANNING", Builder = "郑十", CreatedAt = time2024.AddDays(20), UpdatedAt = time2024.AddDays(20) },
+            new CodeUsageEntry { ModelType = "SB", Model = "SB-101", ActualNumber = "SB-101", ProductName = "薄板B", OccupancyType = "WORK_ORDER", Builder = "钱一", CreatedAt = time2024.AddDays(30), UpdatedAt = time2024.AddDays(30) }
+        });
+        
+        // 2025年数据：AC首次出现
+        var time2025 = new DateTime(2025, 1, 1);
+        codeUsageEntries.AddRange(new[]
+        {
+            new CodeUsageEntry { ModelType = "AC", Model = "AC-50", ActualNumber = "AC-50", ProductName = "特殊载盘A", OccupancyType = "PLANNING", Builder = "陈二", CreatedAt = time2025.AddDays(10), UpdatedAt = time2025.AddDays(10) },
+            new CodeUsageEntry { ModelType = "AC", Model = "AC-100", ActualNumber = "AC-100", ProductName = "特殊载盘B", OccupancyType = "WORK_ORDER", Builder = "林三", CreatedAt = time2025.AddDays(20), UpdatedAt = time2025.AddDays(20) }
+        });
+        
+        dbContext.CodeUsageEntries.AddRange(codeUsageEntries);
+        await dbContext.SaveChangesAsync();
+        Console.WriteLine("✅编码使用记录测试数据已创建 - 包含2022-2025年新增机型统计数据");
+    }
 }
 
 // 配置HTTP请求管道

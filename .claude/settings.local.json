@@ -1,0 +1,43 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl:*)",
+      "mcp__Sequential_thinking__sequentialthinking",
+      "Bash(npm run dev:*)",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_snapshot",
+      "mcp__playwright__browser_click",
+      "mcp__playwright__browser_wait_for",
+      "mcp__playwright__browser_take_screenshot",
+      "mcp__playwright__browser_type",
+      "mcp__playwright__browser_select_option",
+      "mcp__playwright__browser_handle_dialog",
+      "Bash(dotnet watch:*)",
+      "Bash(taskkill:*)",
+      "Bash(start dotnet run)",
+      "Bash(tree:*)",
+      "Bash(npm install)",
+      "Bash(npm install:*)",
+      "Read(/C:\\Users\\SAC\\Desktop\\机型编码系统\\ModelCodeManagement/**)",
+      "Read(/C:\\Users\\SAC\\Desktop\\机型编码系统\\ModelCodeManagement\\frontend/**)",
+      "Read(/C:\\Users\\SAC\\Desktop\\机型编码系统\\ModelCodeManagement\\frontend\\src/**)",
+      "Read(/C:\\Users\\SAC\\Desktop\\机型编码系统\\ModelCodeManagement\\frontend\\src/**)",
+      "Read(/C:\\Users\\SAC\\Desktop\\机型编码系统\\ModelCodeManagement\\frontend\\src/**)",
+      "Read(/C:\\Users\\SAC\\Desktop\\机型编码系统\\ModelCodeManagement\\frontend\\src\\services/**)",
+      "Read(/C:\\Users\\SAC\\Desktop\\机型编码系统\\ModelCodeManagement\\frontend\\src\\services/**)",
+      "Read(/C:\\Users\\SAC\\Desktop\\机型编码系统\\ModelCodeManagement\\frontend\\src\\services/**)",
+      "Read(/C:\\Users\\SAC\\Desktop\\机型编码系统\\ModelCodeManagement\\frontend\\src\\contexts/**)",
+      "Read(/C:\\Users\\SAC\\Desktop\\机型编码系统\\ModelCodeManagement\\backend\\ModelCodeManagement.Api/**)",
+      "Read(/C:\\Users\\SAC\\Desktop\\机型编码系统\\ModelCodeManagement\\backend\\ModelCodeManagement.Api\\ModelCodeManagement.Api/**)",
+      "Read(/C:\\Users\\SAC\\Desktop\\机型编码系统\\ModelCodeManagement\\backend\\ModelCodeManagement.Api\\ModelCodeManagement.Api/**)",
+      "Read(/C:\\Users\\SAC\\Desktop\\机型编码系统\\ModelCodeManagement\\backend\\ModelCodeManagement.Api\\ModelCodeManagement.Api/**)",
+      "Read(/C:\\Users\\SAC\\Desktop\\机型编码系统\\ModelCodeManagement\\backend\\ModelCodeManagement.Api\\ModelCodeManagement.Api\\Entities/**)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "Context 7",
+    "Sequential thinking",
+    "spec-workflow"
+  ]
+}
